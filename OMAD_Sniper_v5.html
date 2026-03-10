@@ -2970,8 +2970,8 @@ function demoFetchAllPairPrices(){
 
 
 // ============================================================
-// NEWS ENGINE — Multi-source fallback
-// Sources: rss2json (CT) → AllOrigins (CT) → CryptoCompare
+// NEWS ENGINE — Real-time market intelligence
+// Data dari API yang sudah terbukti jalan (no CORS issue)
 // ============================================================
 var newsLoaded=false, newsLoading=false, newsCache=[], newsLastLoad=0;
 
@@ -2979,85 +2979,178 @@ function loadNews(){
   if(newsLoading)return;
   var list=document.getElementById('newsList');
   if(!list)return;
-  if(newsCache.length&&Date.now()-newsLastLoad<300000){renderNews(newsCache);return;}
+  if(newsCache.length&&Date.now()-newsLastLoad<180000){renderNews(newsCache);return;}
   newsLoading=true;
-  list.innerHTML='<div style="text-align:center;padding:30px;font-family:var(--mono);font-size:9px;color:var(--cyan)">⏳ Memuat berita...</div>';
-  // Source 1: rss2json — convert RSS CoinTelegraph ke JSON
-  tF('https://api.rss2json.com/v1/api.json?rss_url='+encodeURIComponent('https://cointelegraph.com/rss')+'&api_key=public&count=20')
-    .then(function(d){
-      if(d&&d.items&&d.items.length){
-        newsLoading=false;newsLoaded=true;
-        var items=d.items.slice(0,20).map(function(n,i){
-          return {id:i,title:n.title,body:n.description?n.description.replace(/<[^>]+>/g,'').slice(0,200):'',url:n.link,source:'CoinTelegraph',published_on:Math.floor(new Date(n.pubDate).getTime()/1000)||Math.floor(Date.now()/1000)-i*1800};
-        });
-        newsCache=items;newsLastLoad=Date.now();
-        renderNews(newsCache);
-      } else { trySource2(); }
-    }).catch(function(){ trySource2(); });
-}
-
-function trySource2(){
-  // Source 2: CryptoCompare
-  tF('https://min-api.cryptocompare.com/data/v2/news/?lang=EN&categories=BTC,ETH,Altcoin,Trading&sortOrder=popular')
-    .then(function(d){
-      if(d&&d.Data&&d.Data.length){
-        newsLoading=false;newsLoaded=true;
-        newsCache=d.Data.slice(0,20);newsLastLoad=Date.now();
-        renderNews(newsCache);
-      } else { trySource3(); }
-    }).catch(function(){ trySource3(); });
-}
-
-function trySource3(){
-  // Source 3: AllOrigins RSS proxy
-  tF('https://api.allorigins.win/get?url='+encodeURIComponent('https://cointelegraph.com/rss'))
-    .then(function(r){
+  list.innerHTML='<div style="text-align:center;padding:30px;font-family:var(--mono);font-size:9px;color:var(--cyan)">⏳ Menganalisa pasar...</div>';
+  
+  var collected={fg:null,trending:null,global:null,prices:{}};
+  var done=0;
+  var total=3;
+  
+  function tryFinish(){
+    done++;
+    if(done>=total){
       newsLoading=false;newsLoaded=true;
-      if(!r||!r.contents){showNewsError();return;}
-      var items=[];
-      var re=/<item>([\s\S]*?)<\/item>/g;
-      var m;
-      while((m=re.exec(r.contents))!==null&&items.length<15){
-        var block=m[1];
-        var tm=block.match(/<title><!\[CDATA\[([^\]]+)\]\]>/)||block.match(/<title>([^<]+)</);
-        var lm=block.match(/<link>([^<\s]+)/);
-        var pm=block.match(/<pubDate>([^<]+)/);
-        if(!tm)continue;
-        var ts=pm?Math.floor(new Date(pm[1]).getTime()/1000):Math.floor(Date.now()/1000)-items.length*1800;
-        items.push({id:items.length,title:tm[1].trim(),body:'',url:lm?lm[1]:'#',source:'CoinTelegraph',published_on:ts});
-      }
-      if(items.length){newsCache=items;newsLastLoad=Date.now();renderNews(newsCache);}
-      else showNewsError();
-    }).catch(function(){newsLoading=false;showNewsError();});
+      newsLastLoad=Date.now();
+      newsCache=buildNewsItems(collected);
+      renderNews(newsCache);
+    }
+  }
+  
+  // 1. Fear & Greed
+  tF('https://api.alternative.me/fng/?limit=2')
+    .then(function(d){
+      if(d&&d.data)collected.fg=d.data;
+      tryFinish();
+    }).catch(function(){tryFinish();});
+  
+  // 2. CoinGecko Trending
+  tF('https://api.coingecko.com/api/v3/search/trending')
+    .then(function(d){
+      if(d&&d.coins)collected.trending=d.coins.slice(0,7);
+      tryFinish();
+    }).catch(function(){tryFinish();});
+  
+  // 3. CoinGecko Global
+  tF('https://api.coingecko.com/api/v3/global')
+    .then(function(d){
+      if(d&&d.data)collected.global=d.data;
+      tryFinish();
+    }).catch(function(){tryFinish();});
 }
 
-function showNewsError(){
-  newsLoading=false;
-  var list=document.getElementById('newsList');
-  if(list)list.innerHTML='<div style="text-align:center;padding:20px;font-family:var(--mono);font-size:9px;color:var(--t2);line-height:1.8">❌ Gagal memuat berita<br><span style="color:var(--t3);font-size:8px">Cek koneksi & tap 🔄 Refresh</span></div>';
+function buildNewsItems(data){
+  var items=[];
+  var now=Math.floor(Date.now()/1000);
+  
+  // === FEAR & GREED NEWS ===
+  if(data.fg&&data.fg.length){
+    var fg=data.fg[0];
+    var fgVal=parseInt(fg.value);
+    var fgPrev=data.fg[1]?parseInt(data.fg[1].value):fgVal;
+    var fgDir=fgVal>fgPrev?'naik':'turun';
+    var fgSig=fgVal>=60?'LONG':fgVal<=40?'SHORT':'WAIT';
+    var fgColor=fgVal>=60?'green':fgVal<=40?'red':'amber';
+    var fgLabel=fgVal>=75?'Extreme Greed':fgVal>=55?'Greed':fgVal>=45?'Neutral':fgVal>=25?'Fear':'Extreme Fear';
+    items.push({
+      id:'fg',
+      title:'Fear & Greed Index: '+fgVal+'/100 — '+fgLabel+' ('+fgDir+' dari '+fgPrev+')',
+      body:'Sentiment pasar saat ini '+fgLabel+'. Index '+fgDir+' dari hari sebelumnya.',
+      sig:fgSig, col:fgColor, src:'Alternative.me', ts:now,
+      impact: fgVal>=70||fgVal<=30?'HIGH':'MEDIUM'
+    });
+  }
+  
+  // === GLOBAL MARKET NEWS ===
+  if(data.global){
+    var g=data.global;
+    var totalMcap=g.total_market_cap?g.total_market_cap.usd:0;
+    var mcapChange=g.market_cap_change_percentage_24h_usd||0;
+    var btcDom=g.market_cap_percentage?g.market_cap_percentage.btc:0;
+    var ethDom=g.market_cap_percentage?g.market_cap_percentage.eth:0;
+    var activeCoin=g.active_cryptocurrencies||0;
+    
+    // Market cap news
+    var mcapSig=mcapChange>2?'LONG':mcapChange<-2?'SHORT':'WAIT';
+    var mcapStr=mcapChange>=0?'+'+mcapChange.toFixed(2)+'%':mcapChange.toFixed(2)+'%';
+    var mcapT=(totalMcap/1e12).toFixed(2);
+    items.push({
+      id:'mcap',
+      title:'Total Market Cap: $'+mcapT+'T ('+mcapStr+' / 24H)',
+      body:'Kapitalisasi pasar crypto global '+(mcapChange>0?'meningkat':'menurun')+' dalam 24 jam terakhir.',
+      sig:mcapSig, col:mcapChange>2?'green':mcapChange<-2?'red':'amber', src:'CoinGecko Global', ts:now-60,
+      impact:Math.abs(mcapChange)>3?'HIGH':'MEDIUM'
+    });
+    
+    // BTC Dominance news
+    var domSig=btcDom>55?'WAIT':btcDom<45?'LONG':'WAIT'; // altseason kalau BTC dom turun
+    items.push({
+      id:'dom',
+      title:'BTC Dominance: '+btcDom.toFixed(1)+'% | ETH: '+ethDom.toFixed(1)+'%',
+      body:btcDom>55?'BTC dominan — altcoin cenderung underperform.':btcDom<45?'BTC dominance rendah — potensi altseason!':'Dominance normal, pasar seimbang.',
+      sig:domSig, col:btcDom<45?'green':'amber', src:'CoinGecko Global', ts:now-120,
+      impact:'MEDIUM'
+    });
+  }
+  
+  // === BTC PRICE CONTEXT (dari data app) ===
+  if(lastPrice&&pair==='BTCUSDT'){
+    var priceSig=mktCond==='BULL'||mktCond==='UPTREND'?'LONG':mktCond==='BEAR'||mktCond==='DOWNTREND'?'SHORT':'WAIT';
+    items.push({
+      id:'btcprice',
+      title:'BTC/USDT: $'+fP(lastPrice)+' — '+mktCond.replace(/_/g,' '),
+      body:'Kondisi pasar saat ini: '+mktCond.replace(/_/g,' ')+'. ADX menunjukkan kekuatan trend.',
+      sig:priceSig, col:priceSig==='LONG'?'green':priceSig==='SHORT'?'red':'amber', src:'Bybit Live', ts:now,
+      impact:'HIGH'
+    });
+  }
+  
+  // === OI & FUNDING ===
+  if(window._oiSignal){
+    var oiSig=window._oiSignal==='LONG'?'LONG':window._oiSignal==='SHORT'?'SHORT':'WAIT';
+    items.push({
+      id:'oi',
+      title:'Open Interest Signal: '+window._oiSignal+(window._fundingRate?' | Funding: '+window._fundingRate:''),
+      body:'Open Interest mencerminkan posisi aktif di pasar. '+(oiSig==='LONG'?'Dominasi posisi long.':'Dominasi posisi short.'),
+      sig:oiSig, col:oiSig==='LONG'?'green':oiSig==='SHORT'?'red':'amber', src:'Bybit Futures', ts:now-30,
+      impact:'HIGH'
+    });
+  }
+  
+  // === TRENDING COINS ===
+  if(data.trending&&data.trending.length){
+    var trendNames=data.trending.map(function(t){return t.item.symbol.toUpperCase();}).join(', ');
+    items.push({
+      id:'trending',
+      title:'🔥 Trending di CoinGecko: '+trendNames,
+      body:'Coin paling banyak dicari di CoinGecko 24 jam terakhir. Potensi volatilitas tinggi.',
+      sig:'WAIT', col:'amber', src:'CoinGecko Trending', ts:now-180,
+      impact:'MEDIUM'
+    });
+    // Tiap trending coin jadi 1 item
+    for(var i=0;i<Math.min(5,data.trending.length);i++){
+      var coin=data.trending[i].item;
+      var rank=coin.market_cap_rank||'?';
+      var prc=coin.data&&coin.data.price?coin.data.price:'N/A';
+      var chg=coin.data&&coin.data.price_change_percentage_24h?coin.data.price_change_percentage_24h.usd:null;
+      var chgStr=chg!==null?(chg>=0?'+'+chg.toFixed(1)+'%':chg.toFixed(1)+'%'):'';
+      var tSig=chg!==null?(chg>3?'LONG':chg<-3?'SHORT':'WAIT'):'WAIT';
+      items.push({
+        id:'trend_'+i,
+        title:'#'+rank+' '+coin.name+' ('+coin.symbol.toUpperCase()+') — Trending '+chgStr,
+        body:'Masuk top trending CoinGecko. '+(chg!==null&&chg>0?'Momentum positif.':'Perhatikan level support.'),
+        sig:tSig, col:tSig==='LONG'?'green':tSig==='SHORT'?'red':'amber', src:'CoinGecko Trending', ts:now-200-i*60,
+        impact:Math.abs(chg||0)>5?'HIGH':'LOW'
+      });
+    }
+  }
+  
+  // Sort: HIGH impact dulu
+  items.sort(function(a,b){
+    var imp={HIGH:0,MEDIUM:1,LOW:2};
+    return (imp[a.impact]||1)-(imp[b.impact]||1);
+  });
+  
+  return items;
 }
 
-function newsAnalyzeSentiment(title,body){
-  var txt=(title+' '+(body||'')).toLowerCase();
-  var b=['surge','rally','bull','pump','ath','gain','rise','up','green','breakout','recover','bounce','growth','approve','adoption','launch','institutional','buy','bullish','soar','record','high'];
-  var s=['crash','drop','bear','dump','low','loss','fall','down','red','hack','ban','restrict','fear','sell','breakdown','decline','liquidat','correction','fraud','collapse','warning','bearish','plunge'];
-  var bs=0,ss=0;
-  for(var i=0;i<b.length;i++)if(txt.indexOf(b[i])>-1)bs++;
-  for(var i=0;i<s.length;i++)if(txt.indexOf(s[i])>-1)ss++;
-  if(bs>ss+1)return{sig:'LONG',lbl:'BULLISH',col:'var(--green)',bg:'rgba(0,230,118,.08)',border:'rgba(0,230,118,.2)'};
-  if(ss>bs+1)return{sig:'SHORT',lbl:'BEARISH',col:'var(--red)',bg:'rgba(255,23,68,.08)',border:'rgba(255,23,68,.2)'};
-  return{sig:'WAIT',lbl:'MIXED',col:'var(--amber)',bg:'rgba(255,171,0,.06)',border:'rgba(255,171,0,.15)'};
+function newsAnalyzeSentiment(sig){
+  if(sig==='LONG')return{sig:'LONG',lbl:'BULLISH',col:'var(--green)',bg:'rgba(0,230,118,.08)',border:'rgba(0,230,118,.2)'};
+  if(sig==='SHORT')return{sig:'SHORT',lbl:'BEARISH',col:'var(--red)',bg:'rgba(255,23,68,.08)',border:'rgba(255,23,68,.2)'};
+  return{sig:'WAIT',lbl:'NEUTRAL',col:'var(--amber)',bg:'rgba(255,171,0,.06)',border:'rgba(255,171,0,.15)'};
 }
 
 function renderNews(items){
   var list=document.getElementById('newsList');
   var sentBar=document.getElementById('newsSentBar');
-  if(!list)return;
+  if(!list||!items.length){
+    if(list)list.innerHTML='<div style="text-align:center;padding:20px;font-family:var(--mono);font-size:9px;color:var(--t3)">Tidak ada data tersedia</div>';
+    return;
+  }
   var bull=0,bear=0;
   for(var i=0;i<items.length;i++){
-    var s=newsAnalyzeSentiment(items[i].title,items[i].body||items[i].description||'');
-    if(s.sig==='LONG')bull++;
-    else if(s.sig==='SHORT')bear++;
+    if(items[i].sig==='LONG')bull++;
+    else if(items[i].sig==='SHORT')bear++;
   }
   var total=items.length||1;
   var bullPct=Math.round(bull/total*100);
@@ -3068,27 +3161,28 @@ function renderNews(items){
     if(fill){fill.style.width=bullPct+'%';fill.style.background=bullPct>60?'var(--green)':bullPct<40?'var(--red)':'var(--amber)';}
     if(lbl){
       var overall=bullPct>60?'BULLISH 📈':bullPct<40?'BEARISH 📉':'MIXED ↕';
-      lbl.textContent=overall+' ('+bullPct+'%)';
+      lbl.textContent=overall+' ('+bullPct+'% bull)';
       lbl.style.color=bullPct>60?'var(--green)':bullPct<40?'var(--red)':'var(--amber)';
     }
   }
   var rows=[];
   for(var i=0;i<items.length;i++){
     var n=items[i];
-    var sent=newsAnalyzeSentiment(n.title,n.body||n.description||'');
-    var ago=timeAgo(n.published_on*1000);
-    var src=n.source_info?n.source_info.name:(n.source||'News');
-    var url=(n.url||'#').replace(/'/g,'%27');
+    var sent=newsAnalyzeSentiment(n.sig);
+    var ago=timeAgo(n.ts*1000);
+    var impBadge=n.impact==='HIGH'?'<span style="background:rgba(255,23,68,.1);border:1px solid rgba(255,23,68,.3);color:var(--red);border-radius:3px;padding:1px 4px;font-family:var(--mono);font-size:6px;margin-left:4px">HIGH</span>':
+      n.impact==='MEDIUM'?'<span style="background:rgba(255,171,0,.08);border:1px solid rgba(255,171,0,.2);color:var(--amber);border-radius:3px;padding:1px 4px;font-family:var(--mono);font-size:6px;margin-left:4px">MED</span>':'';
     rows.push(
-      '<div style="background:'+sent.bg+';border:1px solid '+sent.border+';border-radius:7px;padding:9px;cursor:pointer" onclick="window.open(\''+url+'\')">'
+      '<div style="background:'+sent.bg+';border:1px solid '+sent.border+';border-radius:7px;padding:9px">'
       +'<div style="display:flex;gap:8px;align-items:flex-start;margin-bottom:5px">'
-      +'<div style="flex:1;font-family:var(--body);font-size:9px;color:var(--t1);line-height:1.4">'+n.title+'</div>'
+      +'<div style="flex:1;font-family:var(--body);font-size:9px;color:var(--t1);line-height:1.4">'+n.title+impBadge+'</div>'
       +'<div style="flex-shrink:0;text-align:center;border:1px solid '+sent.col+';border-radius:5px;padding:4px 6px;min-width:42px;background:'+sent.bg+'">'
       +'<div style="font-family:var(--dis);font-size:8px;font-weight:700;color:'+sent.col+'">'+sent.sig+'</div>'
       +'<div style="font-family:var(--mono);font-size:6px;color:var(--t3)">'+sent.lbl+'</div>'
       +'</div></div>'
+      +'<div style="font-family:var(--mono);font-size:7px;color:var(--t3);margin-bottom:3px;line-height:1.4">'+n.body+'</div>'
       +'<div style="display:flex;justify-content:space-between">'
-      +'<div style="font-family:var(--mono);font-size:7px;color:var(--t3)">📰 '+src+'</div>'
+      +'<div style="font-family:var(--mono);font-size:7px;color:var(--t3)">📡 '+n.src+'</div>'
       +'<div style="font-family:var(--mono);font-size:7px;color:var(--t3)">'+ago+'</div>'
       +'</div></div>'
     );
@@ -3115,6 +3209,7 @@ function startAll(){
   // V5: Kill Zones + OI + Bias + F&G + BTC + CVD
   updateKillZones();
   setInterval(updateKillZones,30000);
+  setInterval(function(){if(newsLoaded)loadNews();},180000);
   fetchOIFunding();
   setInterval(fetchOIFunding,60000);
   fetchBias();
