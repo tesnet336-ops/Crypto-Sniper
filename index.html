@@ -1711,8 +1711,8 @@ async function reqNotif(){
   }
 }
 function sendNotif(title,body,type){
-  // 1. Getarkan HP (Android)
-  try{if(navigator.vibrate)navigator.vibrate([300,100,300]);}catch(e){}
+  // 1. Getarkan HP (Android) - pattern berbeda untuk perfect score
+  try{if(navigator.vibrate){if(title.indexOf('PERFECT')>-1)navigator.vibrate([500,100,500,100,500]);else navigator.vibrate([300,100,300]);}}catch(e){}
 
   // 2. Bunyi alert
   try{
@@ -1773,9 +1773,17 @@ function _doNotif(title,body,type){
 function initNotifPermission(){
   if(typeof Notification==='undefined'){var nb=document.getElementById('notifBtn');if(nb){nb.textContent='🔕 N/A';nb.style.color='var(--t3)';}return;}
   if(Notification.permission==='default'){
-    // Tampilkan tombol enable notif
+    // Auto request permission setelah 3 detik
     var nb=document.getElementById('notifBtn');
     if(nb)nb.style.display='inline-block';
+    setTimeout(function(){
+      Notification.requestPermission(function(perm){
+        notifEnabled=perm==='granted';
+        var nb2=document.getElementById('notifBtn');
+        if(nb2){nb2.textContent=notifEnabled?'🔔 ON':'🔕 OFF';nb2.style.color=notifEnabled?'var(--green)':'var(--t3)';}
+        if(notifEnabled)showToast('🔔 Notifikasi aktif! Akan muncul saat score 85+ dan 100');
+      });
+    },3000);
   } else if(Notification.permission==='granted'){
     notifEnabled=true;
     var nb=document.getElementById('notifBtn');
@@ -1806,14 +1814,36 @@ function toggleNotif(){
 }
 
 function checkNotif(sc){
-  if(sc>=85&&lastNotifScore<85){
-    var dir=lastDir==='LONG'?'▲ LONG':'▼ SHORT';
-    var type=lastDir==='LONG'?'bull':'bear';
-    sendNotif('🎯 OMAD SNIPER — '+pair.replace('USDT',''),dir+' Signal! Score: '+sc+'/100 | '+mktCond.replace('_',' '),type);
+  var dir=lastDir==='LONG'?'▲ LONG':'▼ SHORT';
+  var type=lastDir==='LONG'?'bull':'bear';
+  var pairName=pair.replace('USDT','/USDT');
+
+  // Level 3: PERFECT SCORE 100 - notif khusus (cek dulu sebelum level 85)
+  if(sc>=100&&lastNotifScore<100){
+    sendNotif(
+      '💯 PERFECT SCORE! — '+pairName,
+      dir+' | Score: 100/100 | SEMUA KONFIRMASI TERPENUHI! Entry sekarang!',
+      type
+    );
+    lastNotifScore=sc;
+    return;
   }
+
+  // Level 2: Score 85-99 - pertama kali naik ke 85+
   if(sc>=85&&lastNotifScore<85){
-    sendNotif('🔥 SNIPER SHOT! '+pair.replace('USDT',''),lastDir+' — Score: '+sc+'/100! Entry konfirmasi!',lastDir==='LONG'?'bull':'bear');
+    sendNotif(
+      '🎯 SNIPER SHOT! — '+pairName,
+      dir+' | Score: '+sc+'/100 | '+mktCond.replace(/_/g,' ')+' | Entry dikonfirmasi!',
+      type
+    );
   }
+
+  // Reset threshold kalau score turun di bawah 80
+  if(sc<80){
+    lastNotifScore=0;
+    return;
+  }
+
   lastNotifScore=sc;
 }
 // ============================================================
@@ -2917,7 +2947,8 @@ window.addEventListener('load',function(){
 var deferredPrompt = null;
 
 // Register Service Worker
-if ('serviceWorker' in navigator) {
+var isGithubPages = location.hostname.includes('github.io') || location.hostname === 'localhost' || location.protocol === 'https:';
+if ('serviceWorker' in navigator && isGithubPages) {
   window.addEventListener('load', function() {
     navigator.serviceWorker.register('./sw.js').then(function(reg) {
       console.log('SW registered:', reg.scope);
