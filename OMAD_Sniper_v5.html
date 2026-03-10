@@ -4,19 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <title>OMAD SNIPER v5</title>
-
-<!-- PWA Manifest -->
-<link rel="manifest" href="manifest.json">
-
 <!-- Theme & Status Bar -->
 <meta name="theme-color" content="#ff6d00">
-<meta name="mobile-web-app-capable" content="yes">
 <meta name="application-name" content="OMAD Sniper">
 
 <!-- iOS PWA Support -->
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="OMAD Sniper">
 <link rel="apple-touch-icon" href="icons/icon-152x152.png">
 <link rel="apple-touch-icon" sizes="192x192" href="icons/icon-192x192.png">
 
@@ -244,8 +236,7 @@ select.psel{flex:1;background:rgba(0,229,255,.04);border:1px solid var(--b2);bor
     <div><div class="brand">OMAD<span> SNIPER</span></div><div class="brand-sub">PRECISION ENTRY SYSTEM v5</div></div>
     <div class="live-row"><div class="dot off" id="liveDot"></div><span id="liveTxt">OFFLINE</span><button id="notifBtn" onclick="toggleNotif()" style="display:inline-block;margin-left:5px;padding:2px 7px;background:rgba(255,171,0,.1);border:1px solid rgba(255,171,0,.3);border-radius:3px;color:var(--t3);font-family:var(--mono);font-size:7px;cursor:pointer">🔔 NOTIF</button><span id="srcTxt" style="font-family:var(--mono);font-size:7px;color:var(--t3);padding:1px 5px;border:1px solid var(--b2);border-radius:3px;margin-left:3px">—</span></div>
   </div>
-  <div id="pwaBar" style="background:linear-gradient(135deg,rgba(255,109,0,.12),rgba(255,171,0,.08));border-bottom:1px solid rgba(255,109,0,.2);padding:6px 12px;display:flex;justify-content:space-between;align-items:center">
-  <div style="font-family:var(--mono);font-size:8px;color:var(--t3)">📱 Install sebagai app di HP/Desktop</div>
+  
   <button id="pwaInstallBtn" style="display:none;align-items:center;gap:5px;padding:4px 12px;background:linear-gradient(135deg,#ff6d00,#ffb300);border:none;border-radius:4px;color:#000;font-family:var(--dis);font-size:8px;font-weight:700;cursor:pointer;letter-spacing:1px">⬇ INSTALL</button>
 </div>
 <div class="pair-row">
@@ -1464,8 +1455,9 @@ async function doScan(){
     var sigKey=pair+'_'+lastDir+'_'+(Math.round(sc/5)*5);
     if(sigKey!==lastSavedKey){
       lastSavedKey=sigKey;
-      setTimeout(function(){lastSavedKey='';},300000); // reset setelah 5 menit
+      setTimeout(function(){lastSavedKey='';},300000);
       saveSignal(sc,lastDir,lastSetup);
+      setTimeout(function(){showToast('📋 Sinyal '+sc+'/100 tersimpan ke History');},500);
     }
     // Entry confirmation
     if(lastSetup){
@@ -2009,14 +2001,14 @@ function saveSignal(sc,dir,setup){
   };
   signalHistory.unshift(entry);
   if(signalHistory.length>20)signalHistory=signalHistory.slice(0,20);
-  try{localStorage.setItem('omad_history',JSON.stringify(signalHistory));}catch(e){}
+  try{localStorage.setItem('omad_history',JSON.stringify(signalHistory));}catch(e){console.warn('localStorage gagal:',e);}
   renderHistory();
 }
 function setResult(id,isWin){
   var idx=-1;for(var fi=0;fi<signalHistory.length;fi++){if(signalHistory[fi].id===id){idx=fi;break;}}
   if(idx>-1){
     signalHistory[idx].result=isWin?'win':'loss';
-    try{localStorage.setItem('omad_history',JSON.stringify(signalHistory));}catch(e){}
+    try{localStorage.setItem('omad_history',JSON.stringify(signalHistory));}catch(e){console.warn('localStorage gagal:',e);}
     renderHistory();
     showToast(isWin?'✅ Dicatat sebagai WIN!':'❌ Dicatat sebagai LOSS');
   }
@@ -2796,12 +2788,16 @@ function demoClosePos(id, manual){
   };
   signalHistory.unshift(entry2);
   if(signalHistory.length>50)signalHistory=signalHistory.slice(0,50);
-  try{localStorage.setItem('omad_history',JSON.stringify(signalHistory));}catch(e){}
+  try{localStorage.setItem('omad_history',JSON.stringify(signalHistory));}catch(e){console.warn('localStorage gagal:',e);}
 
   demoPositions.splice(idx,1);
   demoSave();
   demoRenderAll();
   renderHistory();
+  // Notif tersimpan ke history
+  setTimeout(function(){
+    showToast('📋 Tersimpan ke History');
+  },1200);
 }
 
 function demoCancelPending(id){
@@ -3236,46 +3232,7 @@ window.addEventListener('load',function(){
 var deferredPrompt = null;
 
 // Register Service Worker
-var isGithubPages = location.hostname.includes('github.io') || location.hostname === 'localhost' || location.protocol === 'https:';
-if ('serviceWorker' in navigator && isGithubPages) {
-  window.addEventListener('load', function() {
-    navigator.serviceWorker.register('./sw.js').then(function(reg) {
-      console.log('SW registered:', reg.scope);
-      // Cek update
-      reg.addEventListener('updatefound', function() {
-        var newWorker = reg.installing;
-        newWorker.addEventListener('statechange', function() {
-          if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-            showToast('🔄 Update tersedia! Refresh untuk versi terbaru.');
-          }
-        });
-      });
-    }).catch(function(err) {
-      console.log('SW failed:', err);
-    });
-  });
-}
-
-// Install prompt (Android Chrome "Add to Home Screen")
-window.addEventListener('beforeinstallprompt', function(e) {
-  e.preventDefault();
-  deferredPrompt = e;
-  // Tampilkan tombol install
-  var btn = document.getElementById('pwaInstallBtn');
-  if (btn) {
-    btn.style.display = 'inline-flex';
-    btn.onclick = function() {
-      deferredPrompt.prompt();
-      deferredPrompt.userChoice.then(function(result) {
-        if (result.outcome === 'accepted') {
-          showToast('✅ OMAD Sniper berhasil diinstall!');
-          btn.style.display = 'none';
-        }
-        deferredPrompt = null;
-      });
-    };
-  }
-});
+// Service Worker tidak digunakan (standalone HTML)
 
 // Saat sudah diinstall
 window.addEventListener('appinstalled', function() {
