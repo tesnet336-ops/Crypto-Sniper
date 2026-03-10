@@ -4,6 +4,31 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <title>OMAD SNIPER v5</title>
+
+<!-- PWA Manifest -->
+<link rel="manifest" href="manifest.json">
+
+<!-- Theme & Status Bar -->
+<meta name="theme-color" content="#ff6d00">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="application-name" content="OMAD Sniper">
+
+<!-- iOS PWA Support -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="OMAD Sniper">
+<link rel="apple-touch-icon" href="icons/icon-152x152.png">
+<link rel="apple-touch-icon" sizes="192x192" href="icons/icon-192x192.png">
+
+<!-- Microsoft Tiles -->
+<meta name="msapplication-TileImage" content="icons/icon-144x144.png">
+<meta name="msapplication-TileColor" content="#02060a">
+<meta name="msapplication-navbutton-color" content="#ff6d00">
+
+<!-- SEO & Social -->
+<meta name="description" content="OMAD Sniper v5 — Precision Crypto Entry System for Bybit Futures">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192x192.png">
+<link rel="icon" type="image/svg+xml" href="icon.svg">
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Share+Tech+Mono&family=Exo+2:wght@400;600&display=swap" rel="stylesheet">
 <style>
 @keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
@@ -219,7 +244,11 @@ select.psel{flex:1;background:rgba(0,229,255,.04);border:1px solid var(--b2);bor
     <div><div class="brand">OMAD<span> SNIPER</span></div><div class="brand-sub">PRECISION ENTRY SYSTEM v5</div></div>
     <div class="live-row"><div class="dot off" id="liveDot"></div><span id="liveTxt">OFFLINE</span><button id="notifBtn" onclick="toggleNotif()" style="display:inline-block;margin-left:5px;padding:2px 7px;background:rgba(255,171,0,.1);border:1px solid rgba(255,171,0,.3);border-radius:3px;color:var(--t3);font-family:var(--mono);font-size:7px;cursor:pointer">🔔 NOTIF</button><span id="srcTxt" style="font-family:var(--mono);font-size:7px;color:var(--t3);padding:1px 5px;border:1px solid var(--b2);border-radius:3px;margin-left:3px">—</span></div>
   </div>
-  <div class="pair-row">
+  <div id="pwaBar" style="background:linear-gradient(135deg,rgba(255,109,0,.12),rgba(255,171,0,.08));border-bottom:1px solid rgba(255,109,0,.2);padding:6px 12px;display:flex;justify-content:space-between;align-items:center">
+  <div style="font-family:var(--mono);font-size:8px;color:var(--t3)">📱 Install sebagai app di HP/Desktop</div>
+  <button id="pwaInstallBtn" style="display:none;align-items:center;gap:5px;padding:4px 12px;background:linear-gradient(135deg,#ff6d00,#ffb300);border:none;border-radius:4px;color:#000;font-family:var(--dis);font-size:8px;font-weight:700;cursor:pointer;letter-spacing:1px">⬇ INSTALL</button>
+</div>
+<div class="pair-row">
     <select class="psel" id="psel" onchange="onPairChange()">
       <optgroup label="── MAJOR ──" style="color:var(--amber)">
       <option value="BTCUSDT">BTC/USDT</option>
@@ -1682,8 +1711,8 @@ async function reqNotif(){
   }
 }
 function sendNotif(title,body,type){
-  // 1. Getarkan HP (Android)
-  try{if(navigator.vibrate)navigator.vibrate([300,100,300]);}catch(e){}
+  // 1. Getarkan HP (Android) - pattern berbeda untuk perfect score
+  try{if(navigator.vibrate){if(title.indexOf('PERFECT')>-1)navigator.vibrate([500,100,500,100,500]);else navigator.vibrate([300,100,300]);}}catch(e){}
 
   // 2. Bunyi alert
   try{
@@ -1744,9 +1773,17 @@ function _doNotif(title,body,type){
 function initNotifPermission(){
   if(typeof Notification==='undefined'){var nb=document.getElementById('notifBtn');if(nb){nb.textContent='🔕 N/A';nb.style.color='var(--t3)';}return;}
   if(Notification.permission==='default'){
-    // Tampilkan tombol enable notif
+    // Auto request permission setelah 3 detik
     var nb=document.getElementById('notifBtn');
     if(nb)nb.style.display='inline-block';
+    setTimeout(function(){
+      Notification.requestPermission(function(perm){
+        notifEnabled=perm==='granted';
+        var nb2=document.getElementById('notifBtn');
+        if(nb2){nb2.textContent=notifEnabled?'🔔 ON':'🔕 OFF';nb2.style.color=notifEnabled?'var(--green)':'var(--t3)';}
+        if(notifEnabled)showToast('🔔 Notifikasi aktif! Akan muncul saat score 85+ dan 100');
+      });
+    },3000);
   } else if(Notification.permission==='granted'){
     notifEnabled=true;
     var nb=document.getElementById('notifBtn');
@@ -1777,14 +1814,36 @@ function toggleNotif(){
 }
 
 function checkNotif(sc){
-  if(sc>=85&&lastNotifScore<85){
-    var dir=lastDir==='LONG'?'▲ LONG':'▼ SHORT';
-    var type=lastDir==='LONG'?'bull':'bear';
-    sendNotif('🎯 OMAD SNIPER — '+pair.replace('USDT',''),dir+' Signal! Score: '+sc+'/100 | '+mktCond.replace('_',' '),type);
+  var dir=lastDir==='LONG'?'▲ LONG':'▼ SHORT';
+  var type=lastDir==='LONG'?'bull':'bear';
+  var pairName=pair.replace('USDT','/USDT');
+
+  // Level 3: PERFECT SCORE 100 - notif khusus (cek dulu sebelum level 85)
+  if(sc>=100&&lastNotifScore<100){
+    sendNotif(
+      '💯 PERFECT SCORE! — '+pairName,
+      dir+' | Score: 100/100 | SEMUA KONFIRMASI TERPENUHI! Entry sekarang!',
+      type
+    );
+    lastNotifScore=sc;
+    return;
   }
+
+  // Level 2: Score 85-99 - pertama kali naik ke 85+
   if(sc>=85&&lastNotifScore<85){
-    sendNotif('🔥 SNIPER SHOT! '+pair.replace('USDT',''),lastDir+' — Score: '+sc+'/100! Entry konfirmasi!',lastDir==='LONG'?'bull':'bear');
+    sendNotif(
+      '🎯 SNIPER SHOT! — '+pairName,
+      dir+' | Score: '+sc+'/100 | '+mktCond.replace(/_/g,' ')+' | Entry dikonfirmasi!',
+      type
+    );
   }
+
+  // Reset threshold kalau score turun di bawah 80
+  if(sc<80){
+    lastNotifScore=0;
+    return;
+  }
+
   lastNotifScore=sc;
 }
 // ============================================================
@@ -2881,6 +2940,71 @@ window.addEventListener('load',function(){
     try{startAll();}catch(e){console.error('startAll error:',e);setTimeout(startAll,2000);}
   },800);
 });
+
+// ============================================================
+// PWA — Service Worker & Install Prompt
+// ============================================================
+var deferredPrompt = null;
+
+// Register Service Worker
+var isGithubPages = location.hostname.includes('github.io') || location.hostname === 'localhost' || location.protocol === 'https:';
+if ('serviceWorker' in navigator && isGithubPages) {
+  window.addEventListener('load', function() {
+    navigator.serviceWorker.register('./sw.js').then(function(reg) {
+      console.log('SW registered:', reg.scope);
+      // Cek update
+      reg.addEventListener('updatefound', function() {
+        var newWorker = reg.installing;
+        newWorker.addEventListener('statechange', function() {
+          if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+            showToast('🔄 Update tersedia! Refresh untuk versi terbaru.');
+          }
+        });
+      });
+    }).catch(function(err) {
+      console.log('SW failed:', err);
+    });
+  });
+}
+
+// Install prompt (Android Chrome "Add to Home Screen")
+window.addEventListener('beforeinstallprompt', function(e) {
+  e.preventDefault();
+  deferredPrompt = e;
+  // Tampilkan tombol install
+  var btn = document.getElementById('pwaInstallBtn');
+  if (btn) {
+    btn.style.display = 'inline-flex';
+    btn.onclick = function() {
+      deferredPrompt.prompt();
+      deferredPrompt.userChoice.then(function(result) {
+        if (result.outcome === 'accepted') {
+          showToast('✅ OMAD Sniper berhasil diinstall!');
+          btn.style.display = 'none';
+        }
+        deferredPrompt = null;
+      });
+    };
+  }
+});
+
+// Saat sudah diinstall
+window.addEventListener('appinstalled', function() {
+  showToast('🎉 OMAD Sniper berhasil diinstall sebagai app!');
+  var btn = document.getElementById('pwaInstallBtn');
+  if (btn) btn.style.display = 'none';
+  deferredPrompt = null;
+});
+
+// Deteksi apakah sudah jalan sebagai PWA
+var isPWA = window.matchMedia('(display-mode: standalone)').matches || 
+            window.navigator.standalone === true;
+if (isPWA) {
+  // Sembunyikan address bar info
+  var pwaBar = document.getElementById('pwaBar');
+  if (pwaBar) pwaBar.style.display = 'none';
+}
+
 </script>
 </body>
 </html>
