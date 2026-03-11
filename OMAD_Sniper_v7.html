@@ -436,227 +436,429 @@ button{color:#d0e8f5!important;-webkit-text-fill-color:#d0e8f5!important}
 <div class="scroll">
 <!-- CONFLUENCE PANE -->
 <div class="pane on" id="pane-conf">
-  <!-- SESSION TIMER -->
-  <div class="sess-bar" id="sessBar" style="margin-top:9px">
-    <div class="sess-box" id="sess-asia"><div class="sess-name" style="color:var(--cyan)">🌏 ASIA</div><div class="sess-time">00:00–09:00 UTC</div><div class="sess-status" id="st-asia">—</div></div>
-    <div class="sess-box" id="sess-london"><div class="sess-name" style="color:var(--amber)">🏦 LONDON</div><div class="sess-time">07:00–16:00 UTC</div><div class="sess-status" id="st-london">—</div></div>
-    <div class="sess-box" id="sess-ny"><div class="sess-name" style="color:var(--green)">🗽 NEW YORK</div><div class="sess-time">12:00–21:00 UTC</div><div class="sess-status" id="st-ny">—</div></div>
-  </div>
-  <!-- KILL ZONES ICT -->
-  <div style="margin-top:6px;margin-bottom:4px">
-    <div style="font-family:var(--mono);font-size:6px;color:var(--t3);margin-bottom:4px;letter-spacing:.5px">⚡ KILL ZONES ICT</div>
-    <div class="kz-bar" id="kzBar">
-      <div class="kz-box" id="kz-asian"><div class="kz-name" style="color:var(--cyan)">ASIAN</div><div class="kz-time">00:00–04:00</div><div class="kz-status" id="kzs-asian">—</div></div>
-      <div class="kz-box" id="kz-london"><div class="kz-name" style="color:var(--amber)">LONDON</div><div class="kz-time">07:00–09:00</div><div class="kz-status" id="kzs-london">—</div></div>
-      <div class="kz-box" id="kz-ny"><div class="kz-name" style="color:var(--green)">NY OPEN</div><div class="kz-time">13:00–15:00</div><div class="kz-status" id="kzs-ny">—</div></div>
-      <div class="kz-box" id="kz-nyc"><div class="kz-name" style="color:var(--orange)">NY CLOSE</div><div class="kz-time">20:00–22:00</div><div class="kz-status" id="kzs-nyc">—</div></div>
-    </div>
-  </div>
-  <!-- WEEKLY/MONTHLY BIAS -->
-  <div class="bias-row" id="biasRow" style="display:grid;grid-template-columns:1fr 1fr;gap:5px;margin:6px 0">
-    <div class="bias-box"><div class="bias-lbl">DAILY BIAS</div><div class="bias-val" id="bDaily">—</div></div>
-    <div class="bias-box"><div class="bias-lbl">WEEKLY BIAS</div><div class="bias-val" id="bWeekly">—</div></div>
-    <div class="bias-box"><div class="bias-lbl">MONTHLY BIAS</div><div class="bias-val" id="bMonthly">—</div></div>
-    <div class="bias-box"><div class="bias-lbl">TREND BIAS</div><div class="bias-val" id="bTrend">—</div></div>
-  </div>
-  <!-- OI + FUNDING -->
-  <div class="oi-grid" id="oiGrid">
-    <div class="oi-box"><div class="oi-lbl">OPEN INTEREST</div><div class="oi-val" id="oiVal">—</div><div style="font-size:7px;color:var(--t3)" id="oiChg">—</div></div>
-    <div class="oi-box"><div class="oi-lbl">FUNDING RATE</div><div class="oi-val" id="frVal">—</div><div style="font-size:7px;color:var(--t3)" id="frSig">—</div></div>
-  </div>
-  <!-- FEAR & GREED + BTC CORRELATION -->
-  <div style="display:flex;gap:5px;margin:6px 0">
-    <div class="fg-wrap" style="flex:1">
-      <div style="position:relative;width:52px;height:52px;flex-shrink:0">
-        <canvas id="fgCanvas" width="52" height="52"></canvas>
-        <div id="fgVal" class="fg-val" style="font-family:var(--dis);font-size:14px;font-weight:700;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%)">—</div>
-      </div>
-      <div class="fg-info">
-        <div class="fg-label" id="fgLabel">FEAR & GREED</div>
-        <div class="fg-sub" id="fgSub">Loading...</div>
+
+  <!-- ═══════════════════════════════════════
+       SECTION 1: TIMING — Kill Zone + Session
+       ═══════════════════════════════════════ -->
+  <div style="margin-top:6px;margin-bottom:8px">
+
+    <!-- Kill Zone bar -->
+    <div style="background:var(--card);border:1px solid var(--b1);border-radius:8px;padding:7px 10px;margin-bottom:6px">
+      <div style="font-family:var(--mono);font-size:6px;color:#5aabcc;letter-spacing:2px;margin-bottom:6px">⚡ KILL ZONES ICT</div>
+      <div class="kz-bar" id="kzBar">
+        <div class="kz-box" id="kz-asian">
+          <div class="kz-name" style="color:var(--cyan)">ASIAN</div>
+          <div class="kz-time">00–04 UTC</div>
+          <div class="kz-status" id="kz-asian-s">—</div>
+        </div>
+        <div class="kz-box" id="kz-london">
+          <div class="kz-name" style="color:#7cb9e8">LONDON</div>
+          <div class="kz-time">07–09 UTC</div>
+          <div class="kz-status" id="kz-london-s">—</div>
+        </div>
+        <div class="kz-box" id="kz-ny">
+          <div class="kz-name" style="color:var(--amber)">NY OPEN</div>
+          <div class="kz-time">13–15 UTC</div>
+          <div class="kz-status" id="kz-ny-s">—</div>
+        </div>
+        <div class="kz-box" id="kz-nyc">
+          <div class="kz-name" style="color:#e88c7c">NY CLOSE</div>
+          <div class="kz-time">20–22 UTC</div>
+          <div class="kz-status" id="kz-nyc-s">—</div>
+        </div>
       </div>
     </div>
-    <div style="flex:1;background:var(--card);border:1px solid var(--b1);border-radius:6px;padding:8px;display:flex;flex-direction:column;justify-content:center">
-      <div style="font-family:var(--mono);font-size:6px;color:var(--t3);margin-bottom:4px">BTC DOMINANCE</div>
-      <div class="btc-corr-val" id="btcDom" style="font-family:var(--dis);font-size:14px;font-weight:700">—</div>
-      <div style="font-family:var(--mono);font-size:6px;color:var(--t3);margin-top:6px;margin-bottom:2px">BTC CORRELATION</div>
-      <div class="btc-corr-val" id="btcCorrVal" style="font-family:var(--dis);font-size:11px;font-weight:700">—</div>
+
+    <!-- Session Timer + Candle Countdown -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+      <div style="background:var(--card);border:1px solid var(--b1);border-radius:7px;padding:7px 9px">
+        <div style="font-family:var(--mono);font-size:6px;color:var(--t2);margin-bottom:4px">🕐 SESSION AKTIF</div>
+        <div class="sess-bar" id="sessBar" style="font-family:var(--dis);font-size:11px;font-weight:700;color:var(--t1)">—</div>
+      </div>
+      <div style="background:var(--card);border:1px solid var(--b1);border-radius:7px;padding:7px 9px">
+        <div style="font-family:var(--mono);font-size:6px;color:var(--t2);margin-bottom:4px">⏱️ CANDLE CLOSE</div>
+        <div id="cdTimer" style="font-family:var(--dis);font-size:11px;font-weight:700;color:var(--amber)">—</div>
+        <div id="cdBar" style="margin-top:4px;height:2px;background:var(--b1);border-radius:1px">
+          <div id="cdBarFill" style="height:100%;width:0%;background:var(--amber);border-radius:1px;transition:width 1s linear"></div>
+        </div>
+      </div>
     </div>
   </div>
-  <!-- WYCKOFF PHASE -->
-  <div class="wyc-wrap" id="wycWrap">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px">
-      <div style="font-family:var(--mono);font-size:7px;color:var(--t3)">WYCKOFF PHASE</div>
-      <div style="font-family:var(--dis);font-size:9px;font-weight:700" id="wycPhase">—</div>
-    </div>
-    <div class="wyc-phases">
-      <div class="wyc-ph" id="wyc-acc">ACCUM</div>
-      <div class="wyc-ph" id="wyc-mu">MARKUP</div>
-      <div class="wyc-ph" id="wyc-dist">DISTRIB</div>
-      <div class="wyc-ph" id="wyc-md">MARKDN</div>
-    </div>
-    <div style="font-family:var(--mono);font-size:7px;color:var(--t3);margin-top:4px" id="wycDesc">—</div>
-  </div>
-  <!-- CVD SECTION -->
-  <div style="background:var(--card);border:1px solid var(--b1);border-radius:8px;padding:8px;margin-bottom:8px">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
-      <div style="font-family:var(--mono);font-size:7px;color:#3a7a9a;letter-spacing:2px">📊 CVD — CUMULATIVE VOLUME DELTA</div>
-      <div style="font-family:var(--dis);font-size:10px;font-weight:700" id="cvdDir">—</div>
-    </div>
-    <div style="height:6px;background:rgba(255,255,255,.05);border-radius:3px;margin-bottom:5px;overflow:hidden">
-      <div id="cvdBar" style="height:100%;width:50%;background:var(--cyan);border-radius:3px;transition:width .3s,background .3s"></div>
-    </div>
-    <div style="display:flex;justify-content:space-between">
-      <div style="font-family:var(--mono);font-size:7px;color:var(--t3)">BUY VOL <span id="cvdBuy" style="color:var(--green)">—</span></div>
-      <div style="font-family:var(--mono);font-size:7px;color:var(--t3)">CVD <span id="cvdVal" style="color:var(--cyan)">—</span></div>
-      <div style="font-family:var(--mono);font-size:7px;color:var(--t3)">SELL VOL <span id="cvdSell" style="color:var(--red)">—</span></div>
-    </div>
-    <div id="cvdTxt" style="font-family:var(--mono);font-size:7px;color:var(--t3);margin-top:4px;text-align:center">—</div>
-  </div>
-  <!-- / CVD -->
-  <!-- CANDLE COUNTDOWN -->
-  <div class="cdtimer"><span id="cdTime">--:--</span><span style="color:var(--t3)">candle</span><span id="cdBar" style="flex:1;height:3px;background:var(--b1);border-radius:2px;position:relative;overflow:hidden"><span id="cdFill" style="position:absolute;left:0;top:0;bottom:0;background:var(--amber);border-radius:2px;transition:width 1s linear;width:0%"></span></span><span id="cdTF" style="color:var(--t3)">1H</span></div>
-  <div style="display:flex;gap:6px;margin:0 0 6px">
-    <button id="autoBtn" onclick="toggleAuto()" style="flex:1;padding:10px;border-radius:7px;background:rgba(255,179,0,.08);border:1px solid rgba(255,179,0,.3);color:var(--amber);font-family:var(--mono);font-size:10px;font-weight:700;cursor:pointer;letter-spacing:2px">⚡ AUTO SCAN</button>
-    <button onclick="doScan()" style="padding:10px 14px;border-radius:7px;background:rgba(0,229,255,.06);border:1px solid rgba(0,229,255,.2);color:var(--cyan);font-family:var(--mono);font-size:14px;cursor:pointer;font-weight:700">↺</button>
-  </div>
-  <div id="scanInfo" style="font-family:var(--mono);font-size:7px;color:var(--t3);text-align:right;margin-bottom:8px">[ SIAP — TAP AUTO SCAN ]</div>
-  <div id="swWarn" class="sw-warn"></div>
-  <div class="sc-wrap">
-    <div class="sc-top">
+
+  <!-- ═══════════════════════════════════════
+       SECTION 2: SCORE + VERDICT (UTAMA)
+       ═══════════════════════════════════════ -->
+  <div style="background:var(--card);border:1px solid var(--b1);border-radius:10px;padding:12px 13px;margin-bottom:8px">
+
+    <!-- Score besar + verdict -->
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
       <div>
-        <div style="font-family:var(--mono);font-size:6px;color:var(--t3);letter-spacing:3px;margin-bottom:3px">WEIGHTED CONFLUENCE SCORE</div>
-        <div style="display:flex;align-items:baseline;gap:4px"><span class="sc-num" id="scNum" style="color:var(--t3)">0</span><span class="sc-denom">/100</span></div>
-        <div class="sc-sub" id="scSub">0/11 konfirmasi</div>
+        <div style="font-family:var(--mono);font-size:6px;color:#5aabcc;letter-spacing:2px;margin-bottom:4px">SNIPER SCORE</div>
+        <div style="display:flex;align-items:baseline;gap:3px">
+          <span class="sc-num" id="scNum" style="color:var(--t3)">0</span>
+          <span class="sc-denom">/100</span>
+        </div>
+        <div id="scSub" style="font-family:var(--mono);font-size:7px;color:var(--t2);margin-top:2px">0/11 konfirmasi</div>
       </div>
-      <div>
-        <div class="verdict" id="verdict" style="color:var(--t3);border-color:var(--b2);background:rgba(0,0,0,.2)">STANDBY</div>
-        <div style="text-align:center;margin-top:5px;font-family:var(--mono);font-size:7px;color:var(--t3)" id="adxInfo">ADX: —</div>
+      <div style="text-align:right">
+        <!-- Mandatory filter badges -->
+        <div style="display:flex;gap:4px;justify-content:flex-end;margin-bottom:5px">
+          <div id="badgeMTF" style="font-family:var(--mono);font-size:6px;padding:2px 6px;border-radius:3px;background:rgba(255,255,255,.05);border:1px solid var(--b1);color:var(--t2)">MTF—</div>
+          <div id="badgeKZ" style="font-family:var(--mono);font-size:6px;padding:2px 6px;border-radius:3px;background:rgba(255,255,255,.05);border:1px solid var(--b1);color:var(--t2)">KZ—</div>
+          <div id="badgeFund" style="font-family:var(--mono);font-size:6px;padding:2px 6px;border-radius:3px;background:rgba(255,255,255,.05);border:1px solid var(--b1);color:var(--t2)">FUND—</div>
+        </div>
+        <div id="verdict" style="color:var(--t3);border-color:var(--b2);background:rgba(0,0,0,.2);font-family:var(--dis);font-size:8px;font-weight:700;letter-spacing:2px;padding:6px 10px;border-radius:5px;border:1px solid;text-align:center;min-width:80px">STANDBY</div>
       </div>
     </div>
-    <div class="prog"><div class="pfill" id="pfill" style="width:0%;background:var(--t3)"></div></div>
-    <div class="ticks"><span>0</span><span>20</span><span>40</span><span>60</span><span style="color:var(--amber)">70✓</span><span>85</span><span style="color:var(--green)">100</span></div>
+
+    <!-- Score progress bar -->
+    <div style="height:5px;background:var(--b1);border-radius:3px;margin-bottom:8px;position:relative">
+      <div id="pfill" style="height:100%;width:0%;border-radius:3px;background:var(--t3);transition:width .5s"></div>
+      <!-- Marker 95 -->
+      <div style="position:absolute;top:-3px;left:95%;width:1px;height:11px;background:var(--green);opacity:.6"></div>
+      <div style="position:absolute;top:-12px;left:93%;font-family:var(--mono);font-size:5px;color:var(--green);opacity:.7">95</div>
+    </div>
+
+    <!-- Signal status bar -->
+    <div style="display:flex;align-items:center;gap:8px">
+      <div id="sigBtn" class="sigbtn sig-off" style="flex-shrink:0"></div>
+      <div id="sigTxt" style="font-family:var(--mono);font-size:8px;color:var(--t2)">Jalankan AUTO SCAN</div>
+    </div>
   </div>
-  <div id="autoDirBadge" style="display:none;width:100%;padding:11px;border-radius:8px;border:2px solid;font-family:var(--dis);font-size:16px;font-weight:900;letter-spacing:4px;text-align:center;margin-bottom:10px;transition:all .4s"></div>
-  <div id="dirStandby" style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--b2);background:rgba(255,255,255,.02);font-family:var(--mono);font-size:9px;color:var(--t3);text-align:center;margin-bottom:10px;letter-spacing:2px">⏳ ARAH OTOMATIS — JALANKAN SCAN</div>
-  <div style="display:flex;gap:5px;margin-bottom:8px;flex-wrap:wrap">
-    <span style="font-family:var(--mono);font-size:7px;background:rgba(255,179,0,.08);border:1px solid rgba(255,179,0,.2);color:var(--amber);padding:2px 6px;border-radius:3px">★★★ 15 poin</span>
-    <span style="font-family:var(--mono);font-size:7px;background:rgba(0,229,255,.06);border:1px solid rgba(0,229,255,.15);color:var(--cyan);padding:2px 6px;border-radius:3px">★★ 10 poin</span>
-    <span style="font-family:var(--mono);font-size:7px;background:rgba(255,255,255,.03);border:1px solid var(--b1);color:var(--t2);padding:2px 6px;border-radius:3px">★ 5 poin</span>
+
+  <!-- Scan info bar -->
+  <div id="scanInfo" style="font-family:var(--mono);font-size:7px;color:var(--t2);padding:5px 8px;background:rgba(0,0,0,.2);border-radius:5px;margin-bottom:8px;display:none"></div>
+
+  <!-- ═══════════════════════════════════════
+       SECTION 3: AUTO SCAN BUTTON
+       ═══════════════════════════════════════ -->
+  <div style="display:grid;grid-template-columns:1fr auto;gap:6px;margin-bottom:8px">
+    <button id="autoBtn" onclick="toggleAuto()" style="padding:10px;border-radius:7px;background:rgba(255,179,0,.08);border:1px solid rgba(255,179,0,.3);color:var(--amber);font-family:var(--mono);font-size:9px;font-weight:700;letter-spacing:1px;cursor:pointer">⚡ AUTO SCAN</button>
+    <button onclick="doScan()" style="padding:10px 14px;border-radius:7px;background:rgba(0,229,255,.06);border:1px solid rgba(0,229,255,.2);color:var(--cyan);font-family:var(--mono);font-size:9px;cursor:pointer">🔄</button>
   </div>
-  <div class="sec">11 INDIKATOR AUTO · BERBOBOT</div>
-  <div class="ci" id="ci-smc"><div class="chk" id="chk-smc">—</div><div class="ci-body"><div class="ci-name">1 · Market Structure + SMC</div><div class="ci-detail" id="dt-smc">BOS / CHoCH / Order Block / FVG / Liq Sweep</div></div><span class="wt w15">★★★ 15</span></div>
-  <div class="ci" id="ci-fib"><div class="chk" id="chk-fib">—</div><div class="ci-body"><div class="ci-name">2 · Fibonacci Retracement</div><div class="ci-detail" id="dt-fib">Level 0.382 / 0.5 / 0.618⭐ / 0.705 / 0.786⭐</div></div><span class="wt w10">★★ 10</span></div>
-  <div class="ci" id="ci-ema"><div class="chk" id="chk-ema">—</div><div class="ci-body"><div class="ci-name">3 · EMA Cluster (21/50/200)</div><div class="ci-detail" id="dt-ema">Posisi harga vs EMA · Golden/Death cross</div></div><span class="wt w10">★★ 10</span></div>
-  <div class="ci" id="ci-mom"><div class="chk" id="chk-mom">—</div><div class="ci-body"><div class="ci-name">4 · Momentum (9 Indikator)</div><div class="ci-detail" id="dt-mom">RSI · MACD · BB · Stoch · ATR · Volume · Candle</div></div><span class="wt w15">★★★ 15</span></div>
-  <div class="ci" id="ci-ob"><div class="chk" id="chk-ob">—</div><div class="ci-body"><div class="ci-name">5 · Order Book Imbalance</div><div class="ci-detail" id="dt-ob">Bid/Ask ratio 20 level live dari Bybit</div></div><span class="wt w5">★ 5</span></div>
-  <div class="ci" id="ci-ichi"><div class="chk" id="chk-ichi">—</div><div class="ci-body"><div class="ci-name">6 · Ichimoku Cloud</div><div class="ci-detail" id="dt-ichi">Kumo · Tenkan/Kijun · Chikou span</div></div><span class="wt w10">★★ 10</span></div>
-  <div class="ci" id="ci-div"><div class="chk" id="chk-div">—</div><div class="ci-body"><div class="ci-name">7 · RSI/MACD Divergence</div><div class="ci-detail" id="dt-div">Bullish / Bearish / Hidden divergence</div></div><span class="wt w15">★★★ 15</span></div>
-  <div class="ci" id="ci-sd"><div class="chk" id="chk-sd">—</div><div class="ci-body"><div class="ci-name">8 · Supply & Demand Zone</div><div class="ci-detail" id="dt-sd">Base candle + impulse konfirmasi</div></div><span class="wt w10">★★ 10</span></div>
-  <div class="ci" id="ci-vwap"><div class="chk" id="chk-vwap">—</div><div class="ci-body"><div class="ci-name">9 · VWAP Harian (Reset/hari)</div><div class="ci-detail" id="dt-vwap">Volume weighted avg price · reset per sesi</div></div><span class="wt w5">★ 5</span></div>
-  <div class="ci" id="ci-sr"><div class="chk" id="chk-sr">—</div><div class="ci-body"><div class="ci-name">10 · S/R Horizontal</div><div class="ci-detail" id="dt-sr">Swing cluster · multi-touch level</div></div><span class="wt w10">★★ 10</span></div>
-  <div class="ci" id="ci-mtf"><div class="chk" id="chk-mtf">—</div><div class="ci-body"><div class="ci-name">11 · Multi-Timeframe (Real)</div><div class="ci-detail" id="dt-mtf">Fetch 1H · 4H · 1D terpisah dari API</div></div><span class="wt w15">★★★ 15</span></div>
-  <button class="sigbtn sig-off" id="sigBtn" onclick="showSigModal()"><span id="sigTxt">SCORE 0/100</span></button>
-  <div style="display:flex;gap:5px;margin-top:5px">
-    <button onclick="resetAll()" style="flex:1;padding:8px;background:rgba(255,23,68,.05);border:1px solid rgba(255,23,68,.2);border-radius:6px;color:var(--red);font-family:var(--mono);font-size:8px;cursor:pointer;letter-spacing:2px">↺ RESET</button>
-    <button onclick="reqNotif()" style="padding:8px 12px;background:rgba(255,179,0,.05);border:1px solid rgba(255,179,0,.2);border-radius:6px;color:var(--amber);font-family:var(--mono);font-size:10px;cursor:pointer" title="Aktifkan Notifikasi">🔔</button>
+
+  <!-- ═══════════════════════════════════════
+       SECTION 4: 11 ANALYZER GRID
+       ═══════════════════════════════════════ -->
+  <div style="background:var(--card);border:1px solid var(--b1);border-radius:8px;padding:9px;margin-bottom:8px">
+    <div style="font-family:var(--mono);font-size:6px;color:#5aabcc;letter-spacing:2px;margin-bottom:7px">ANALYZER CONFLUENCE (11)</div>
+    <div style="display:flex;flex-direction:column;gap:4px" id="analyzerList">
+      <!-- SMC -->
+      <div style="display:flex;align-items:center;gap:7px;padding:5px 7px;border-radius:5px;background:rgba(0,0,0,.2)" id="row-smc">
+        <div class="ci fail" id="ci-smc"></div>
+        <div style="flex:1">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <span style="font-family:var(--mono);font-size:8px;color:var(--t2)">SMC</span>
+            <span style="font-family:var(--mono);font-size:6px;color:var(--t3)">W:20</span>
+          </div>
+          <div id="dt-smc" style="font-family:var(--mono);font-size:6px;color:var(--t3)">Belum scan</div>
+        </div>
+        <div id="chk-smc" style="font-family:var(--dis);font-size:10px;color:var(--t3);width:12px;text-align:center">—</div>
+      </div>
+      <!-- MTF -->
+      <div style="display:flex;align-items:center;gap:7px;padding:5px 7px;border-radius:5px;background:rgba(0,0,0,.2)" id="row-mtf">
+        <div class="ci fail" id="ci-mtf"></div>
+        <div style="flex:1">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <span style="font-family:var(--mono);font-size:8px;color:var(--t2)">MTF <span style="color:var(--amber);font-size:5px">★WAJIB</span></span>
+            <span style="font-family:var(--mono);font-size:6px;color:var(--t3)">W:20</span>
+          </div>
+          <div id="dt-mtf" style="font-family:var(--mono);font-size:6px;color:var(--t3)">Belum scan</div>
+        </div>
+        <div id="chk-mtf" style="font-family:var(--dis);font-size:10px;color:var(--t3);width:12px;text-align:center">—</div>
+      </div>
+      <!-- Divergence -->
+      <div style="display:flex;align-items:center;gap:7px;padding:5px 7px;border-radius:5px;background:rgba(0,0,0,.2)" id="row-div">
+        <div class="ci fail" id="ci-div"></div>
+        <div style="flex:1">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <span style="font-family:var(--mono);font-size:8px;color:var(--t2)">Divergence</span>
+            <span style="font-family:var(--mono);font-size:6px;color:var(--t3)">W:18</span>
+          </div>
+          <div id="dt-div" style="font-family:var(--mono);font-size:6px;color:var(--t3)">Belum scan</div>
+        </div>
+        <div id="chk-div" style="font-family:var(--dis);font-size:10px;color:var(--t3);width:12px;text-align:center">—</div>
+      </div>
+      <!-- Momentum -->
+      <div style="display:flex;align-items:center;gap:7px;padding:5px 7px;border-radius:5px;background:rgba(0,0,0,.2)" id="row-mom">
+        <div class="ci fail" id="ci-mom"></div>
+        <div style="flex:1">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <span style="font-family:var(--mono);font-size:8px;color:var(--t2)">Momentum</span>
+            <span style="font-family:var(--mono);font-size:6px;color:var(--t3)">W:18</span>
+          </div>
+          <div id="dt-mom" style="font-family:var(--mono);font-size:6px;color:var(--t3)">Belum scan</div>
+        </div>
+        <div id="chk-mom" style="font-family:var(--dis);font-size:10px;color:var(--t3);width:12px;text-align:center">—</div>
+      </div>
+      <!-- Fibonacci -->
+      <div style="display:flex;align-items:center;gap:7px;padding:5px 7px;border-radius:5px;background:rgba(0,0,0,.2)">
+        <div class="ci fail" id="ci-fib"></div>
+        <div style="flex:1">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <span style="font-family:var(--mono);font-size:8px;color:var(--t2)">Fibonacci</span>
+            <span style="font-family:var(--mono);font-size:6px;color:var(--t3)">W:8</span>
+          </div>
+          <div id="dt-fib" style="font-family:var(--mono);font-size:6px;color:var(--t3)">Belum scan</div>
+        </div>
+        <div id="chk-fib" style="font-family:var(--dis);font-size:10px;color:var(--t3);width:12px;text-align:center">—</div>
+      </div>
+      <!-- EMA -->
+      <div style="display:flex;align-items:center;gap:7px;padding:5px 7px;border-radius:5px;background:rgba(0,0,0,.2)">
+        <div class="ci fail" id="ci-ema"></div>
+        <div style="flex:1">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <span style="font-family:var(--mono);font-size:8px;color:var(--t2)">EMA Stack</span>
+            <span style="font-family:var(--mono);font-size:6px;color:var(--t3)">W:8</span>
+          </div>
+          <div id="dt-ema" style="font-family:var(--mono);font-size:6px;color:var(--t3)">Belum scan</div>
+        </div>
+        <div id="chk-ema" style="font-family:var(--dis);font-size:10px;color:var(--t3);width:12px;text-align:center">—</div>
+      </div>
+      <!-- Ichimoku -->
+      <div style="display:flex;align-items:center;gap:7px;padding:5px 7px;border-radius:5px;background:rgba(0,0,0,.2)">
+        <div class="ci fail" id="ci-ichi"></div>
+        <div style="flex:1">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <span style="font-family:var(--mono);font-size:8px;color:var(--t2)">Ichimoku</span>
+            <span style="font-family:var(--mono);font-size:6px;color:var(--t3)">W:8</span>
+          </div>
+          <div id="dt-ichi" style="font-family:var(--mono);font-size:6px;color:var(--t3)">Belum scan</div>
+        </div>
+        <div id="chk-ichi" style="font-family:var(--dis);font-size:10px;color:var(--t3);width:12px;text-align:center">—</div>
+      </div>
+      <!-- S&D Zone -->
+      <div style="display:flex;align-items:center;gap:7px;padding:5px 7px;border-radius:5px;background:rgba(0,0,0,.2)">
+        <div class="ci fail" id="ci-sd"></div>
+        <div style="flex:1">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <span style="font-family:var(--mono);font-size:8px;color:var(--t2)">S&amp;D Zone</span>
+            <span style="font-family:var(--mono);font-size:6px;color:var(--t3)">W:8</span>
+          </div>
+          <div id="dt-sd" style="font-family:var(--mono);font-size:6px;color:var(--t3)">Belum scan</div>
+        </div>
+        <div id="chk-sd" style="font-family:var(--dis);font-size:10px;color:var(--t3);width:12px;text-align:center">—</div>
+      </div>
+      <!-- S/R Level -->
+      <div style="display:flex;align-items:center;gap:7px;padding:5px 7px;border-radius:5px;background:rgba(0,0,0,.2)">
+        <div class="ci fail" id="ci-sr"></div>
+        <div style="flex:1">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <span style="font-family:var(--mono);font-size:8px;color:var(--t2)">S/R Level</span>
+            <span style="font-family:var(--mono);font-size:6px;color:var(--t3)">W:8</span>
+          </div>
+          <div id="dt-sr" style="font-family:var(--mono);font-size:6px;color:var(--t3)">Belum scan</div>
+        </div>
+        <div id="chk-sr" style="font-family:var(--dis);font-size:10px;color:var(--t3);width:12px;text-align:center">—</div>
+      </div>
+      <!-- Order Block -->
+      <div style="display:flex;align-items:center;gap:7px;padding:5px 7px;border-radius:5px;background:rgba(0,0,0,.2)">
+        <div class="ci fail" id="ci-ob"></div>
+        <div style="flex:1">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <span style="font-family:var(--mono);font-size:8px;color:var(--t2)">Order Block</span>
+            <span style="font-family:var(--mono);font-size:6px;color:var(--t3)">W:4</span>
+          </div>
+          <div id="dt-ob" style="font-family:var(--mono);font-size:6px;color:var(--t3)">Belum scan</div>
+        </div>
+        <div id="chk-ob" style="font-family:var(--dis);font-size:10px;color:var(--t3);width:12px;text-align:center">—</div>
+      </div>
+      <!-- VWAP -->
+      <div style="display:flex;align-items:center;gap:7px;padding:5px 7px;border-radius:5px;background:rgba(0,0,0,.2)">
+        <div class="ci fail" id="ci-vwap"></div>
+        <div style="flex:1">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <span style="font-family:var(--mono);font-size:8px;color:var(--t2)">VWAP</span>
+            <span style="font-family:var(--mono);font-size:6px;color:var(--t3)">W:4</span>
+          </div>
+          <div id="dt-vwap" style="font-family:var(--mono);font-size:6px;color:var(--t3)">Belum scan</div>
+        </div>
+        <div id="chk-vwap" style="font-family:var(--dis);font-size:10px;color:var(--t3);width:12px;text-align:center">—</div>
+      </div>
+    </div>
   </div>
+
+  <!-- ═══════════════════════════════════════
+       SECTION 5: KONTEKS PASAR
+       ═══════════════════════════════════════ -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px">
+
+    <!-- OI + Funding -->
+    <div style="background:var(--card);border:1px solid var(--b1);border-radius:7px;padding:8px">
+      <div style="font-family:var(--mono);font-size:6px;color:#5aabcc;letter-spacing:1px;margin-bottom:6px">OI + FUNDING</div>
+      <div style="display:flex;flex-direction:column;gap:4px">
+        <div style="display:flex;justify-content:space-between">
+          <span style="font-family:var(--mono);font-size:6px;color:var(--t2)">Open Interest</span>
+          <span id="oiVal" style="font-family:var(--mono);font-size:7px;color:var(--t1)">—</span>
+        </div>
+        <div style="display:flex;justify-content:space-between">
+          <span style="font-family:var(--mono);font-size:6px;color:var(--t2)">Funding</span>
+          <span id="fundRate" style="font-family:var(--mono);font-size:7px;color:var(--t1)">—</span>
+        </div>
+        <div id="fundWarn" style="font-family:var(--mono);font-size:6px;color:var(--amber);display:none">⚠️ Funding ekstrem!</div>
+      </div>
+    </div>
+
+    <!-- Fear & Greed -->
+    <div style="background:var(--card);border:1px solid var(--b1);border-radius:7px;padding:8px">
+      <div style="font-family:var(--mono);font-size:6px;color:#5aabcc;letter-spacing:1px;margin-bottom:6px">FEAR &amp; GREED</div>
+      <div style="text-align:center">
+        <div id="fgValue" style="font-family:var(--dis);font-size:24px;font-weight:900;color:var(--amber)">—</div>
+        <div id="fgLabel" style="font-family:var(--mono);font-size:6px;color:var(--t2)">—</div>
+      </div>
+    </div>
+
+    <!-- BTC Dominance -->
+    <div style="background:var(--card);border:1px solid var(--b1);border-radius:7px;padding:8px">
+      <div style="font-family:var(--mono);font-size:6px;color:#5aabcc;letter-spacing:1px;margin-bottom:6px">BTC DOMINANCE</div>
+      <div style="display:flex;flex-direction:column;gap:3px">
+        <div style="display:flex;justify-content:space-between">
+          <span style="font-family:var(--mono);font-size:6px;color:var(--t2)">Dom%</span>
+          <span id="btcDom" style="font-family:var(--mono);font-size:7px;color:var(--t1)">—</span>
+        </div>
+        <div style="display:flex;justify-content:space-between">
+          <span style="font-family:var(--mono);font-size:6px;color:var(--t2)">Korelasi</span>
+          <span id="btcCorr" style="font-family:var(--mono);font-size:7px;color:var(--t1)">—</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- CVD -->
+    <div style="background:var(--card);border:1px solid var(--b1);border-radius:7px;padding:8px">
+      <div style="font-family:var(--mono);font-size:6px;color:#5aabcc;letter-spacing:1px;margin-bottom:6px">CVD EST.</div>
+      <div style="text-align:center">
+        <div id="cvdVal" style="font-family:var(--dis);font-size:16px;font-weight:700;color:var(--t1)">—</div>
+        <div id="cvdTrend" style="font-family:var(--mono);font-size:6px;color:var(--t2)">estimasi OHLC</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════
+       SECTION 6: WYCKOFF + BIAS
+       ═══════════════════════════════════════ -->
+  <div style="background:var(--card);border:1px solid var(--b1);border-radius:7px;padding:8px;margin-bottom:8px">
+    <div style="font-family:var(--mono);font-size:6px;color:#5aabcc;letter-spacing:2px;margin-bottom:7px">WYCKOFF + TREND BIAS</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px">
+      <div>
+        <div style="font-family:var(--mono);font-size:6px;color:var(--t2);margin-bottom:3px">Phase</div>
+        <div id="wycPhase" style="font-family:var(--dis);font-size:12px;font-weight:700;color:var(--amber)">—</div>
+        <div id="wycDetail" style="font-family:var(--mono);font-size:6px;color:var(--t2);margin-top:2px">—</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:3px">
+        <div style="display:flex;justify-content:space-between">
+          <span style="font-family:var(--mono);font-size:6px;color:var(--t2)">Daily</span>
+          <span id="biasD" style="font-family:var(--mono);font-size:7px;color:var(--t1)">—</span>
+        </div>
+        <div style="display:flex;justify-content:space-between">
+          <span style="font-family:var(--mono);font-size:6px;color:var(--t2)">Weekly</span>
+          <span id="biasW" style="font-family:var(--mono);font-size:7px;color:var(--t1)">—</span>
+        </div>
+        <div style="display:flex;justify-content:space-between">
+          <span style="font-family:var(--mono);font-size:6px;color:var(--t2)">Monthly</span>
+          <span id="biasM" style="font-family:var(--mono);font-size:7px;color:var(--t1)">—</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
 </div>
-<!-- SETUP PANE -->
+
 <div class="pane" id="pane-setup">
   <div style="margin-top:9px">
 
-    <!-- STATE: BELUM SCAN / SKOR RENDAH -->
-    <div id="setupWaiting" style="display:block">
-      <div style="background:var(--card);border:1px solid var(--b1);border-radius:10px;padding:20px;text-align:center;margin-bottom:12px">
-        <div style="font-size:28px;margin-bottom:10px">🎯</div>
-        <div style="font-family:var(--dis);font-size:13px;font-weight:700;color:var(--amber);letter-spacing:2px;margin-bottom:6px">OMAD SNIPER</div>
-        <div style="font-family:var(--mono);font-size:8px;color:var(--t2);line-height:1.8">
-          Lakukan scan di tab <span style="color:var(--cyan)">Conf</span> terlebih dahulu.<br>
-          Setup entry akan muncul otomatis<br>
-          saat skor mencapai <span style="color:var(--green);font-weight:700">85+/100</span>
-        </div>
-        <div style="margin-top:14px;padding:8px;background:rgba(0,0,0,.2);border-radius:6px">
-          <div id="setupWaitScore" style="font-family:var(--dis);font-size:32px;font-weight:900;color:var(--t3)">—</div>
-          <div style="font-family:var(--mono);font-size:7px;color:var(--t2)">SKOR SAAT INI</div>
-        </div>
+    <!-- BAGIAN 1: SETUP ENTRY (locked/unlocked) -->
+    <div id="setupWaiting" style="background:var(--card);border:1px solid var(--b1);border-radius:10px;padding:20px 16px;text-align:center;margin-bottom:10px">
+      <div style="font-size:28px;margin-bottom:8px">🔒</div>
+      <div style="font-family:var(--mono);font-size:8px;color:var(--t2);margin-bottom:5px">SETUP TERKUNCI</div>
+      <div style="font-family:var(--dis);font-size:15px;font-weight:700;color:var(--amber);margin-bottom:6px">Butuh score ≥ 85/100</div>
+      <div style="font-family:var(--mono);font-size:8px;color:var(--t2);line-height:1.9;margin-bottom:12px">Jalankan <span style="color:var(--cyan)">AUTO SCAN</span> di tab Conf dulu</div>
+      <div style="display:inline-block;padding:4px 16px;background:rgba(0,0,0,.3);border:1px solid var(--b1);border-radius:20px">
+        <span id="setupWaitScore" style="font-family:var(--dis);font-size:28px;font-weight:900;color:var(--t3)">—</span>
+        <span style="font-family:var(--mono);font-size:8px;color:var(--t2)">/100</span>
       </div>
     </div>
 
-    <!-- STATE: SKOR >= 85 — SETUP ENTRY AKTIF -->
-    <div id="setupActive" style="display:none">
-
-      <!-- Header sinyal -->
-      <div id="seHeader" style="border-radius:8px;padding:10px 12px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;background:rgba(0,230,118,.08);border:1px solid rgba(0,230,118,.3)">
-        <div>
-          <div id="seDirLabel" style="font-family:var(--dis);font-size:18px;font-weight:900;color:var(--green);letter-spacing:2px">▲ LONG</div>
-          <div id="sePairLabel" style="font-family:var(--mono);font-size:8px;color:var(--t2);margin-top:2px">BTC/USDT · 1H</div>
-        </div>
-        <div style="text-align:right">
-          <div id="seScoreBig" style="font-family:var(--dis);font-size:36px;font-weight:900;color:var(--green);line-height:1">85</div>
-          <div style="font-family:var(--mono);font-size:7px;color:var(--t2)">/100 SCORE</div>
+    <div id="setupActive" style="display:none;margin-bottom:10px">
+      <!-- Header arah sinyal -->
+      <div id="seHeader" style="background:rgba(0,230,118,.08);border:1px solid rgba(0,230,118,.3);border-radius:10px;padding:11px 14px;margin-bottom:9px">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div>
+            <div id="seDirLabel" style="font-family:var(--dis);font-size:20px;font-weight:900;color:var(--green);letter-spacing:2px">▲ LONG</div>
+            <div id="sePairLabel" style="font-family:var(--mono);font-size:7px;color:var(--t2);margin-top:3px">—</div>
+          </div>
+          <div style="text-align:right">
+            <div id="seScoreBig" style="font-family:var(--dis);font-size:38px;font-weight:900;color:var(--green);line-height:1">—</div>
+            <div style="font-family:var(--mono);font-size:6px;color:var(--t2)">/100 SCORE</div>
+          </div>
         </div>
       </div>
 
-      <!-- Grid entry/sl/tp -->
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px">
-        <div style="background:rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:10px;text-align:center">
-          <div style="font-family:var(--mono);font-size:6px;color:var(--t2);letter-spacing:1px;margin-bottom:5px">ENTRY PRICE</div>
-          <div id="seEntry" style="font-family:var(--dis);font-size:14px;font-weight:700;color:var(--t1)">—</div>
-          <div style="font-family:var(--mono);font-size:6px;color:var(--t2);margin-top:3px">Market / Limit</div>
+      <!-- Grid harga -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px">
+        <div style="grid-column:span 2;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.07);border-radius:8px;padding:9px;text-align:center">
+          <div style="font-family:var(--mono);font-size:6px;color:var(--t2);letter-spacing:1px;margin-bottom:4px">⚡ ENTRY PRICE</div>
+          <div id="seEntry" style="font-family:var(--dis);font-size:18px;font-weight:700;color:var(--t1)">—</div>
+          <div style="font-family:var(--mono);font-size:6px;color:var(--t2);margin-top:2px">Market / Tunggu candle close</div>
         </div>
-        <div style="background:rgba(255,23,68,.06);border:1px solid rgba(255,23,68,.2);border-radius:8px;padding:10px;text-align:center">
-          <div style="font-family:var(--mono);font-size:6px;color:var(--t2);letter-spacing:1px;margin-bottom:5px">STOP LOSS</div>
+        <div style="background:rgba(255,23,68,.05);border:1px solid rgba(255,23,68,.2);border-radius:8px;padding:8px;text-align:center">
+          <div style="font-family:var(--mono);font-size:6px;color:var(--t2);margin-bottom:4px">🛡️ STOP LOSS</div>
           <div id="seSL" style="font-family:var(--dis);font-size:14px;font-weight:700;color:var(--red)">—</div>
-          <div id="seSLpct" style="font-family:var(--mono);font-size:6px;color:var(--red);margin-top:3px">—%</div>
+          <div id="seSLpct" style="font-family:var(--mono);font-size:6px;color:var(--red);margin-top:2px">—</div>
         </div>
-        <div style="background:rgba(0,229,255,.05);border:1px solid rgba(0,229,255,.2);border-radius:8px;padding:10px;text-align:center">
-          <div style="font-family:var(--mono);font-size:6px;color:var(--t2);letter-spacing:1px;margin-bottom:5px">TP 1 — 50%</div>
+        <div style="background:rgba(0,0,0,.2);border:1px solid var(--b1);border-radius:8px;padding:8px;text-align:center">
+          <div style="font-family:var(--mono);font-size:6px;color:var(--t2);margin-bottom:4px">📐 RR RATIO</div>
+          <div id="seRR" style="font-family:var(--dis);font-size:14px;font-weight:700;color:var(--amber)">—</div>
+          <div style="font-family:var(--mono);font-size:6px;color:var(--t2);margin-top:2px">Risk / Reward</div>
+        </div>
+        <div style="background:rgba(0,229,255,.04);border:1px solid rgba(0,229,255,.18);border-radius:8px;padding:8px;text-align:center">
+          <div style="font-family:var(--mono);font-size:6px;color:var(--t2);margin-bottom:4px">🎯 TP 1 (50%)</div>
           <div id="seTP1" style="font-family:var(--dis);font-size:14px;font-weight:700;color:var(--cyan)">—</div>
-          <div id="seTP1rr" style="font-family:var(--mono);font-size:6px;color:var(--cyan);margin-top:3px">RR 1:—</div>
+          <div id="seTP1rr" style="font-family:var(--mono);font-size:6px;color:var(--cyan);margin-top:2px">—</div>
         </div>
-        <div style="background:rgba(0,229,255,.03);border:1px solid rgba(0,229,255,.12);border-radius:8px;padding:10px;text-align:center">
-          <div style="font-family:var(--mono);font-size:6px;color:var(--t2);letter-spacing:1px;margin-bottom:5px">TP 2 — 100%</div>
+        <div style="background:rgba(0,229,255,.02);border:1px solid rgba(0,229,255,.1);border-radius:8px;padding:8px;text-align:center">
+          <div style="font-family:var(--mono);font-size:6px;color:var(--t2);margin-bottom:4px">🏆 TP 2 (100%)</div>
           <div id="seTP2" style="font-family:var(--dis);font-size:14px;font-weight:700;color:var(--cyan)">—</div>
-          <div id="seTP2rr" style="font-family:var(--mono);font-size:6px;color:var(--cyan);margin-top:3px">RR 1:—</div>
+          <div id="seTP2rr" style="font-family:var(--mono);font-size:6px;color:var(--cyan);margin-top:2px">—</div>
         </div>
       </div>
 
-      <!-- Info bar -->
-      <div style="background:rgba(0,0,0,.25);border-radius:7px;padding:8px 10px;margin-bottom:10px;font-family:var(--mono);font-size:7px;color:var(--t2);line-height:2">
-        <div style="display:flex;justify-content:space-between">
-          <span>📊 Market</span><span id="seMarket" style="color:var(--t1)">—</span>
-        </div>
-        <div style="display:flex;justify-content:space-between">
-          <span>⚖️ RR Ratio</span><span id="seRR" style="color:var(--amber)">—</span>
-        </div>
-        <div style="display:flex;justify-content:space-between">
-          <span>🕐 Waktu</span><span id="seTime" style="color:var(--t1)">—</span>
-        </div>
-        <div style="display:flex;justify-content:space-between">
-          <span>📍 Kill Zone</span><span id="seKZ" style="color:var(--cyan)">—</span>
+      <!-- Info row -->
+      <div style="background:var(--card);border:1px solid var(--b1);border-radius:7px;padding:8px 10px;margin-bottom:8px">
+        <div style="display:grid;grid-template-columns:auto 1fr;gap:4px 10px;align-items:center">
+          <span style="font-family:var(--mono);font-size:7px;color:var(--t2)">📊 Market</span>
+          <span id="seMarket" style="font-family:var(--mono);font-size:7px;color:var(--t1);text-align:right">—</span>
+          <span style="font-family:var(--mono);font-size:7px;color:var(--t2)">🕐 Waktu</span>
+          <span id="seTime" style="font-family:var(--mono);font-size:7px;color:var(--t1);text-align:right">—</span>
+          <span style="font-family:var(--mono);font-size:7px;color:var(--t2)">📍 Kill Zone</span>
+          <span id="seKZ" style="font-family:var(--mono);font-size:7px;color:var(--cyan);text-align:right">—</span>
         </div>
       </div>
 
-      <!-- News/Sideways warning -->
-      <div id="seWarn" style="display:none;background:rgba(255,171,0,.08);border:1px solid rgba(255,171,0,.3);border-radius:6px;padding:8px 10px;margin-bottom:10px;font-family:var(--mono);font-size:7px;color:var(--amber);line-height:1.8"></div>
+      <!-- Warning -->
+      <div id="seWarn" style="display:none;background:rgba(255,171,0,.07);border:1px solid rgba(255,171,0,.3);border-radius:6px;padding:8px 10px;margin-bottom:8px;font-family:var(--mono);font-size:7px;color:var(--amber);line-height:1.8"></div>
 
       <!-- Analyzer breakdown -->
-      <div style="background:var(--card);border:1px solid var(--b1);border-radius:7px;padding:8px;margin-bottom:10px">
-        <div style="font-family:var(--mono);font-size:6px;color:#5aabcc;letter-spacing:2px;margin-bottom:6px">KONFIRMASI ANALYZER</div>
+      <div style="background:var(--card);border:1px solid var(--b1);border-radius:7px;padding:8px 9px;margin-bottom:8px">
+        <div style="font-family:var(--mono);font-size:6px;color:#5aabcc;letter-spacing:2px;margin-bottom:6px">KONFIRMASI ANALYZER (11)</div>
         <div id="seAnalyzers" style="display:flex;flex-direction:column;gap:3px"></div>
       </div>
-
-      <!-- TRADE CHECKLIST -->
-      <div style="background:var(--card);border:1px solid var(--b1);border-radius:7px;padding:8px">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-          <div style="font-family:var(--mono);font-size:6px;color:#5aabcc;letter-spacing:2px">TRADE CHECKLIST</div>
-          <div id="chkScore" style="font-family:var(--mono);font-size:8px;color:var(--amber)">0/5</div>
-        </div>
-        <div id="chkList" style="display:flex;flex-direction:column;gap:5px"></div>
-      </div>
-
     </div>
+
+    <!-- BAGIAN 2: TRADE CHECKLIST — SELALU TAMPIL -->
+    <div style="background:var(--card);border:1px solid var(--b1);border-radius:7px;padding:9px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <div style="font-family:var(--mono);font-size:6px;color:#5aabcc;letter-spacing:2px">✅ TRADE CHECKLIST — WAJIB SEBELUM ENTRY</div>
+        <div style="display:flex;align-items:center;gap:7px">
+          <div id="chkScore" style="font-family:var(--mono);font-size:9px;color:var(--amber);font-weight:700">0/5</div>
+          <button onclick="resetChecklist()" style="padding:3px 8px;background:rgba(255,171,0,.08);border:1px solid rgba(255,171,0,.3);border-radius:4px;color:var(--amber);-webkit-text-fill-color:var(--amber)!important;font-family:var(--mono);font-size:7px;cursor:pointer">RESET</button>
+        </div>
+      </div>
+      <div id="chkList" style="display:flex;flex-direction:column;gap:5px"></div>
+      <div style="margin-top:7px;height:3px;background:var(--b1);border-radius:2px">
+        <div id="chkBar" style="height:100%;width:0%;background:linear-gradient(90deg,var(--amber),var(--green));border-radius:2px;transition:width .4s"></div>
+      </div>
+    </div>
+
   </div>
 </div>
 
@@ -792,6 +994,8 @@ button{color:#d0e8f5!important;-webkit-text-fill-color:#d0e8f5!important}
 let pair='BTCUSDT',tf='60';
 let candles=[],mtf={h1:[],h4:[],d1:[]};
 let lastPrice=0,lastDir='',lastSetup=null;
+let lastCandleTime=0,candleCloseConfirmed=false;
+// candleCloseConfirmed=true artinya sinyal muncul tepat di close candle
 let autoOn=false,autoTimer=null;
 let obData={asks:[],bids:[],ratio:50};
 let mktCond='UNKNOWN';
@@ -802,7 +1006,9 @@ let signalHistory=[];try{signalHistory=JSON.parse(localStorage.getItem('omad_his
 let lastNotifScore=0,notifEnabled=false;
 // KONFIRMASI ENTRY
 let entryConfirm=null;
-const W={smc:15,fib:10,ema:10,mom:15,ob:5,ichi:10,div:15,sd:10,vwap:5,sr:10,mtf:15};
+const W={smc:20,fib:8,ema:8,mom:18,ob:4,ichi:8,div:18,sd:8,vwap:4,sr:8,mtf:20};
+// V7.1: bobot naik untuk SMC+MTF+Mom+Div (sinyal paling reliable)
+// Total max = 20+8+8+18+4+8+18+8+4+8+20 = 132 -> normalized ke 100
 const CID=Object.keys(W);
 let CS={};
 CID.forEach(id=>CS[id]={ok:false,txt:'Belum di-scan'});
@@ -990,23 +1196,129 @@ function A_MTF(){
 }
 
 // SCORE
-function calcScore(){let t=0,mx=0;CID.forEach(id=>{let w=W[id]||5;mx+=w;if(CS[id].ok){if(mktCond==='SIDEWAYS'&&['ema','ichi','mtf'].includes(id))w=Math.floor(w*0.5);t+=w;}});return Math.round(t/(mx||1)*100);}
+function calcScore(){
+  let t=0,mx=0;
+  CID.forEach(id=>{
+    let w=W[id]||5;
+    mx+=w;
+    if(CS[id]&&CS[id].ok){
+      // Kurangi bobot jika sideways
+      if(mktCond==='SIDEWAYS'&&['ema','ichi','mtf'].includes(id)) w=Math.floor(w*0.4);
+      t+=w;
+    }
+  });
+  let raw=Math.round(t/(mx||1)*100);
+
+  // MANDATORY FILTERS — potong skor kalau tidak terpenuhi
+  // Filter 1: MTF harus align
+  if(!CS.mtf||!CS.mtf.ok) raw=Math.floor(raw*0.70); // -30% jika MTF tidak align
+
+  // Filter 2: Kill Zone — cek jam UTC
+  const utcT=new Date().getUTCHours()*60+new Date().getUTCMinutes();
+  const inKZ=(utcT>=0&&utcT<240)||(utcT>=420&&utcT<540)||(utcT>=780&&utcT<900)||(utcT>=1200&&utcT<1320);
+  if(!inKZ) raw=Math.floor(raw*0.80); // -20% di luar Kill Zone
+
+  // Filter 3: Funding rate extreme — blokir skor tinggi
+  const fund=parseFloat(window._fundRate)||0;
+  const dir=lastDir;
+  if((dir==='LONG'&&fund>0.002)||(dir==='SHORT'&&fund<-0.002)){
+    raw=Math.floor(raw*0.75); // -25% jika funding ekstrem berlawanan
+  }
+
+  // Filter 4: Sideways hard cap
+  if(mktCond==='SIDEWAYS') raw=Math.min(raw,88);
+
+  return Math.min(raw,100);
+}
 
 // UPDATE UI
 function updateUI(){
-  const sc=calcScore(),raw=CID.filter(id=>CS[id].ok).length;
-  const g=id=>document.getElementById(id);
-  const en=g('scNum');if(en){en.textContent=sc;en.style.color=sc>=85?'var(--green)':sc>=50?'var(--amber)':sc>=50?'var(--cyan)':'var(--t3)';}
-  const sub=g('scSub');if(sub)sub.textContent=raw+'/11 konfirmasi · '+sc+' poin'+(mktCond==='SIDEWAYS'?' [sideways↓]':'');
-  const pf=g('pfill');if(pf){pf.style.width=sc+'%';pf.style.background=sc>=85?'linear-gradient(90deg,var(--green),#1de9b6)':sc>=50?'linear-gradient(90deg,var(--amber),var(--green))':sc>=50?'var(--cyan)':'var(--t3)';}
-  const v=g('verdict'),sb=g('sigBtn'),st=g('sigTxt');
-  if(!v||!sb||!st)return;
-  const isSide=mktCond==='SIDEWAYS';
-  if(sc<50){v.textContent='STANDBY';v.style.cssText='color:var(--t3);border-color:var(--b2);background:rgba(0,0,0,.2);font-family:var(--dis);font-size:8px;font-weight:700;letter-spacing:2px;padding:6px 10px;border-radius:5px;border:1px solid;text-align:center;min-width:80px';sb.className='sigbtn sig-off';st.textContent='SCORE '+sc+'/100';}
-  else if(sc<70){v.textContent='BUILDING';v.style.cssText='color:var(--cyan);border-color:var(--cyan);background:rgba(0,229,255,.06);font-family:var(--dis);font-size:8px;font-weight:700;letter-spacing:2px;padding:6px 10px;border-radius:5px;border:1px solid;text-align:center;min-width:80px';sb.className='sigbtn sig-off';st.textContent='KURANG '+(70-sc)+' POIN';}
-  else if(sc<85){v.textContent='READY ✓';v.style.cssText='color:var(--amber);border-color:var(--amber);background:rgba(255,179,0,.08);font-family:var(--dis);font-size:8px;font-weight:700;letter-spacing:2px;padding:6px 10px;border-radius:5px;border:1px solid;text-align:center;min-width:80px';sb.className=isSide?'sigbtn sig-side':'sigbtn sig-warn';st.textContent=isSide?'⚠️ SIDEWAYS HATI-HATI':'⚡ SIGNAL READY '+sc+'/100';}
-  else{v.textContent='SNIPER ✓✓';v.style.cssText='color:var(--green);border-color:var(--green);background:rgba(0,230,118,.08);font-family:var(--dis);font-size:8px;font-weight:700;letter-spacing:2px;padding:6px 10px;border-radius:5px;border:1px solid;text-align:center;min-width:80px';sb.className=isSide?'sigbtn sig-side':'sigbtn sig-go';st.textContent=isSide?'⚠️ KONFIRMASI DULU!':'🎯 OMAD SNIPER '+sc+'/100!';}
-  CID.forEach(id=>{const ci=g('ci-'+id),chk=g('chk-'+id),dt=g('dt-'+id);if(!ci)return;ci.className='ci '+(CS[id].ok?'ok':'fail');if(chk)chk.textContent=CS[id].ok?'✓':'—';if(dt)dt.textContent=CS[id].txt||'';});
+  var sc=calcScore();
+  var raw=CID.filter(function(id){return CS[id]&&CS[id].ok;}).length;
+  var g=function(id){return document.getElementById(id);};
+
+  // Score number + bar
+  var en=g('scNum');
+  if(en){
+    en.textContent=sc;
+    en.style.color=sc>=95?'var(--green)':sc>=85?'#7eff7e':sc>=70?'var(--amber)':sc>=50?'var(--cyan)':'var(--t3)';
+  }
+  var sub=g('scSub');
+  if(sub) sub.textContent=raw+'/11 konfirmasi · '+sc+' poin'+(mktCond==='SIDEWAYS'?' [sideways↓]':'');
+  var pf=g('pfill');
+  if(pf){
+    pf.style.width=sc+'%';
+    pf.style.background=sc>=95?'linear-gradient(90deg,#00e676,#1de9b6)':sc>=85?'linear-gradient(90deg,var(--amber),var(--green))':sc>=50?'var(--amber)':'var(--t3)';
+  }
+
+  // ── Mandatory filter badges ──
+  var mtfOk = CS.mtf && CS.mtf.ok;
+  var utcT  = new Date().getUTCHours()*60+new Date().getUTCMinutes();
+  var inKZ  = (utcT>=0&&utcT<240)||(utcT>=420&&utcT<540)||(utcT>=780&&utcT<900)||(utcT>=1200&&utcT<1320);
+  var fund  = parseFloat(window._fundRate)||0;
+  var fundOk= Math.abs(fund)<0.002;
+
+  var bm=g('badgeMTF');
+  if(bm){bm.textContent=mtfOk?'MTF✓':'MTF✗';bm.style.color=mtfOk?'var(--green)':'var(--red)';bm.style.borderColor=mtfOk?'rgba(0,230,118,.4)':'rgba(255,23,68,.4)';bm.style.background=mtfOk?'rgba(0,230,118,.08)':'rgba(255,23,68,.06)';}
+  var bk=g('badgeKZ');
+  if(bk){bk.textContent=inKZ?'KZ✓':'KZ✗';bk.style.color=inKZ?'var(--green)':'rgba(255,255,255,.3)';bk.style.borderColor=inKZ?'rgba(0,230,118,.4)':'var(--b1)';bk.style.background=inKZ?'rgba(0,230,118,.08)':'transparent';}
+  var bf=g('badgeFund');
+  if(bf){bf.textContent=fundOk?'FUND✓':'FUND⚠';bf.style.color=fundOk?'var(--green)':'var(--amber)';bf.style.borderColor=fundOk?'rgba(0,230,118,.4)':'rgba(255,171,0,.4)';bf.style.background=fundOk?'rgba(0,230,118,.08)':'rgba(255,171,0,.06)';}
+
+  // Funding warning
+  var fw=g('fundWarn');
+  if(fw) fw.style.display=(!fundOk)?'block':'none';
+
+  // ── Verdict + signal button ──
+  var v=g('verdict'),sb=g('sigBtn'),st=g('sigTxt');
+  if(!v||!sb||!st) return;
+  var isSide=mktCond==='SIDEWAYS';
+
+  if(sc<50){
+    v.textContent='STANDBY';
+    v.style.cssText='color:var(--t3);border-color:var(--b2);background:rgba(0,0,0,.2);font-family:var(--dis);font-size:8px;font-weight:700;letter-spacing:2px;padding:6px 10px;border-radius:5px;border:1px solid;text-align:center;min-width:80px';
+    sb.className='sigbtn sig-off';
+    st.textContent='SCORE '+sc+'/100';
+  } else if(sc<70){
+    v.textContent='BUILDING';
+    v.style.cssText='color:var(--cyan);border-color:var(--cyan);background:rgba(0,229,255,.06);font-family:var(--dis);font-size:8px;font-weight:700;letter-spacing:2px;padding:6px 10px;border-radius:5px;border:1px solid;text-align:center;min-width:80px';
+    sb.className='sigbtn sig-off';
+    st.textContent='KURANG '+(70-sc)+' poin lagi';
+  } else if(sc<85){
+    v.textContent='READY';
+    v.style.cssText='color:var(--amber);border-color:var(--amber);background:rgba(255,179,0,.08);font-family:var(--dis);font-size:8px;font-weight:700;letter-spacing:2px;padding:6px 10px;border-radius:5px;border:1px solid;text-align:center;min-width:80px';
+    sb.className='sigbtn sig-warn';
+    st.textContent='⚡ '+sc+'/100 — perlu 95+';
+  } else if(sc<95){
+    v.textContent='STRONG';
+    v.style.cssText='color:#7eff7e;border-color:#7eff7e;background:rgba(0,230,118,.07);font-family:var(--dis);font-size:8px;font-weight:700;letter-spacing:2px;padding:6px 10px;border-radius:5px;border:1px solid;text-align:center;min-width:80px';
+    sb.className=isSide?'sigbtn sig-side':'sigbtn sig-warn';
+    st.textContent=isSide?'⚠️ SIDEWAYS':'💪 STRONG '+sc+'/100 — tunggu 95+';
+  } else {
+    // 🎯 SNIPER ZONE
+    var closeOk=candleCloseConfirmed;
+    v.textContent=closeOk?'🎯 SNIPER':'⏳ SNIPER*';
+    v.style.cssText='color:var(--green);border-color:var(--green);background:rgba(0,230,118,.12);font-family:var(--dis);font-size:8px;font-weight:700;letter-spacing:2px;padding:6px 10px;border-radius:5px;border:1px solid;text-align:center;min-width:80px';
+    sb.className=isSide?'sigbtn sig-side':'sigbtn sig-go';
+    st.textContent=isSide?'⚠️ KONFIRMASI DULU!':closeOk?'🎯 SNIPER ENTRY '+sc+'/100 CONFIRMED!':'⏳ '+sc+'/100 — tunggu candle close';
+  }
+
+  // ── Analyzer rows — update warna ──
+  CID.forEach(function(id){
+    var ci=g('ci-'+id),chk=g('chk-'+id),dt=g('dt-'+id),row=g('row-'+id);
+    if(!ci) return;
+    var ok=CS[id]&&CS[id].ok;
+    var isBull=CS[id]&&CS[id].dir==='B';
+    ci.className='ci '+(ok?'ok':'fail');
+    if(chk) chk.textContent=ok?'✓':'—';
+    if(dt)  dt.textContent=(CS[id]&&CS[id].txt)||'';
+    if(dt)  dt.style.color=ok?'var(--t2)':'var(--t3)';
+    if(row){
+      row.style.background=ok?(isBull?'rgba(0,230,118,.06)':'rgba(255,23,68,.06)'):'rgba(0,0,0,.2)';
+    }
+    if(chk) chk.style.color=ok?(isBull?'var(--green)':'var(--red)'):'var(--t3)';
+  });
+
   buildSetup();
 }
 
@@ -1045,15 +1357,25 @@ async function doScan(){
     const dirTxt=lastDir==='LONG'?'▲ LONG':'▼ SHORT';
     el.textContent='✅ '+nTs()+' | '+raw+'/11 | Skor: '+sc+'/100 | '+dirTxt+' (B:'+v.wb+'pt S:'+v.ws+'pt) | '+mktCond.replace('_',' ');
   }
+  // SELALU set lastPrice & lastSetup dari candle terakhir
+  if(candles&&candles.length>0){
+    lastPrice=candles[candles.length-1].c;
+    const atrVal=mATR(candles);
+    const isL=lastDir==='LONG';
+    const entry=lastPrice;
+    const sl=isL?entry-atrVal*1.5:entry+atrVal*1.5;
+    const tp1=isL?entry+atrVal*2.5:entry-atrVal*2.5;
+    const tp2=isL?entry+atrVal*4.5:entry-atrVal*4.5;
+    lastSetup={entry:entry,sl:sl,tp1:tp1,tp2:tp2,atr:atrVal,score:sc,dir:lastDir};
+  }
   if(sc>=85){
     showToast('🎯 '+pair.replace('USDT','')+' '+lastDir+' — '+sc+'/100!');
     saveSignal(sc,lastDir,lastSetup);
-    // Entry confirmation
     if(lastSetup){
-      const atrVal=mATR(candles);
-      calcEntryConfirm(lastDir,lastSetup.entry,lastSetup.sl,atrVal);
+      calcEntryConfirm(lastDir,lastSetup.entry,lastSetup.sl,mATR(candles));
     }
   }
+  buildSetup();
   checkNotif(sc);
 }
 
@@ -1093,18 +1415,17 @@ function buildSetup(){
   var active = document.getElementById('setupActive');
   var waitScore = document.getElementById('setupWaitScore');
 
-  // Update skor di state waiting
+  // Selalu update skor di waiting state
   if(waitScore){
     waitScore.textContent = sc > 0 ? sc : '—';
     var scCol = sc>=85?'var(--green)':sc>=70?'var(--amber)':sc>=50?'var(--cyan)':'var(--t3)';
     waitScore.style.color = scCol;
   }
 
-  // SIDEWAYS check
   var isSideways = (mktCond==='SIDEWAYS' && sc < 92);
+  var hasData = lastPrice > 0; // cukup punya harga, tidak perlu tunggu lastSetup
 
-  if(sc >= 85 && lastSetup && !isSideways) {
-    // Tampilkan state aktif
+  if(sc >= 85 && hasData && !isSideways){
     if(waiting) waiting.style.display = 'none';
     if(active) active.style.display = 'block';
 
@@ -1112,7 +1433,7 @@ function buildSetup(){
     var col = isL ? 'var(--green)' : 'var(--red)';
     var g = function(id){return document.getElementById(id);};
 
-    // Header
+    // Header warna sesuai arah
     var hdr = g('seHeader');
     if(hdr){
       hdr.style.background = 'rgba('+(isL?'0,230,118':'255,23,68')+',.08)';
@@ -1122,84 +1443,76 @@ function buildSetup(){
       g('seDirLabel').textContent = isL ? '▲ LONG' : '▼ SHORT';
       g('seDirLabel').style.color = col;
     }
-    if(g('sePairLabel')){
-      var tfLbl = tf==='60'?'1H':tf==='240'?'4H':tf==='D'?'1D':'15M';
-      g('sePairLabel').textContent = pair.replace('USDT','/USDT') + ' · ' + tfLbl + ' · Bybit Futures';
-    }
-    if(g('seScoreBig')){
-      g('seScoreBig').textContent = sc;
-      g('seScoreBig').style.color = col;
-    }
+    var tfLbl = tf==='60'?'1H':tf==='240'?'4H':tf==='D'?'1D':'15M';
+    if(g('sePairLabel')) g('sePairLabel').textContent = pair.replace('USDT','/USDT')+' · '+tfLbl+' · Bybit Futures';
+    if(g('seScoreBig')){g('seScoreBig').textContent = sc; g('seScoreBig').style.color = col;}
 
-    // Harga
-    var entry = lastSetup.entry || lastPrice;
-    var sl = lastSetup.sl || 0;
-    var tp1 = lastSetup.tp1 || 0;
-    var tp2 = lastSetup.tp2 || 0;
+    // Hitung entry/sl/tp dari lastSetup atau hitung ulang dari ATR
+    var entry = lastPrice;
+    var atr = lastSetup ? lastSetup.atr : mATR(candles);
+    if(!atr || atr<=0) atr = entry * 0.01;
+    var sl  = lastSetup ? lastSetup.sl  : (isL ? entry-atr*1.5 : entry+atr*1.5);
+    var tp1 = lastSetup ? lastSetup.tp1 : (isL ? entry+atr*2.5 : entry-atr*2.5);
+    var tp2 = lastSetup ? lastSetup.tp2 : (isL ? entry+atr*4.5 : entry-atr*4.5);
 
-    if(g('seEntry')) g('seEntry').textContent = '$' + fP(entry);
+    if(g('seEntry')) g('seEntry').textContent = '$'+fP(entry);
 
-    if(g('seSL')) g('seSL').textContent = '$' + fP(sl);
+    if(g('seSL')) g('seSL').textContent = '$'+fP(sl);
     if(g('seSLpct') && sl && entry){
-      var slp = Math.abs(entry-sl)/entry*100;
-      g('seSLpct').textContent = '-' + slp.toFixed(2) + '%';
+      g('seSLpct').textContent = '-'+(Math.abs(entry-sl)/entry*100).toFixed(2)+'%';
     }
-
-    var rr1 = sl && tp1 ? (Math.abs(tp1-entry)/Math.abs(entry-sl)) : 0;
-    var rr2 = sl && tp2 ? (Math.abs(tp2-entry)/Math.abs(entry-sl)) : 0;
-    if(g('seTP1')) g('seTP1').textContent = '$' + fP(tp1);
-    if(g('seTP1rr')) g('seTP1rr').textContent = 'RR 1:' + rr1.toFixed(1);
-    if(g('seTP2')) g('seTP2').textContent = '$' + fP(tp2);
-    if(g('seTP2rr')) g('seTP2rr').textContent = 'RR 1:' + rr2.toFixed(1);
+    var rr1 = sl && tp1 ? Math.abs(tp1-entry)/Math.abs(entry-sl) : 0;
+    var rr2 = sl && tp2 ? Math.abs(tp2-entry)/Math.abs(entry-sl) : 0;
+    var rrAvg = (rr1+rr2)/2;
+    if(g('seTP1')) g('seTP1').textContent = '$'+fP(tp1);
+    if(g('seTP1rr')) g('seTP1rr').textContent = 'RR 1:'+rr1.toFixed(1);
+    if(g('seTP2')) g('seTP2').textContent = '$'+fP(tp2);
+    if(g('seTP2rr')) g('seTP2rr').textContent = 'RR 1:'+rr2.toFixed(1);
+    if(g('seRR')) g('seRR').textContent = '1:'+rrAvg.toFixed(1)+(rrAvg>=2?' ✅':rrAvg>=1.5?' ⚠️':' ❌');
 
     // Info bar
     if(g('seMarket')) g('seMarket').textContent = mktCond;
-    if(g('seRR')){
-      var rrAvg = (rr1+rr2)/2;
-      g('seRR').textContent = '1:' + rrAvg.toFixed(1) + (rrAvg>=2?' ✅':rrAvg>=1.5?' ⚠️':' ❌');
-    }
-    if(g('seTime')) g('seTime').textContent = new Date().toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'}) + ' WIB';
-
-    // Kill Zone status
-    var now = new Date();
-    var utcH = now.getUTCHours(), utcM = now.getUTCMinutes();
-    var utcT = utcH*60+utcM;
-    var kzName = '';
+    if(g('seTime')) g('seTime').textContent = new Date().toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'})+' WIB';
+    var utcT = new Date().getUTCHours()*60+new Date().getUTCMinutes();
+    var kzName='';
     if(utcT>=0&&utcT<240) kzName='Asian 00-04 UTC';
     else if(utcT>=420&&utcT<540) kzName='London 07-09 UTC';
     else if(utcT>=780&&utcT<900) kzName='NY Open 13-15 UTC';
     else if(utcT>=1200&&utcT<1320) kzName='NY Close 20-22 UTC';
-    if(g('seKZ')) g('seKZ').textContent = kzName ? '🟢 ' + kzName + ' (AKTIF)' : '⚪ Di luar Kill Zone';
+    if(g('seKZ')) g('seKZ').textContent = kzName ? '🟢 '+kzName : '⚪ Di luar Kill Zone';
 
-    // Warning
+    // Warning box
     var warn = g('seWarn');
-    var warnMsg = '';
-    if(newsFilterActive) warnMsg += '⚠️ Berita penting terdeteksi — waspadai volatilitas tinggi.\n';
     if(warn){
-      if(warnMsg){warn.style.display='block';warn.textContent=warnMsg.trim();}
-      else{warn.style.display='none';}
+      var wMsg = '';
+      if(newsFilterActive) wMsg += '⚠️ Berita penting aktif — waspadai volatilitas!\n';
+      if(warn){ if(wMsg){warn.style.display='block';warn.textContent=wMsg.trim();}else{warn.style.display='none';}}
     }
 
     // Analyzer breakdown
     var anaEl = g('seAnalyzers');
-    if(anaEl){
-      var names = {smc:'SMC',fib:'Fibonacci',ema:'EMA',mom:'Momentum',ob:'Order Book',ichi:'Ichimoku',div:'Divergence',sd:'S&D',vwap:'VWAP',sr:'S/R',mtf:'MTF'};
-      var weights = {smc:15,fib:10,ema:10,mom:15,ob:5,ichi:10,div:15,sd:10,vwap:5,sr:10,mtf:15};
-      var html = '';
+    if(anaEl && typeof CID !== 'undefined'){
+      var names={smc:'SMC',fib:'Fibonacci',ema:'EMA',mom:'Momentum',ob:'Order Block',ichi:'Ichimoku',div:'Divergence',sd:'S&D Zone',vwap:'VWAP',sr:'S/R Level',mtf:'MTF'};
+      var weights={smc:15,fib:10,ema:10,mom:15,ob:5,ichi:10,div:15,sd:10,vwap:5,sr:10,mtf:15};
+      var html='';
       CID.forEach(function(id){
-        var ok = CS[id]&&CS[id].ok;
-        var w = weights[id]||5;
-        var bgColor = ok ? (CS[id].dir==='B'?'rgba(0,230,118,.07)':'rgba(255,23,68,.07)') : 'rgba(255,255,255,.02)';
-        var dotColor = ok ? (CS[id].dir==='B'?'var(--green)':'var(--red)') : 'var(--t3)';
-        html += '<div style="display:flex;justify-content:space-between;align-items:center;padding:4px 6px;border-radius:5px;background:'+bgColor+'">' +
-          '<div style="display:flex;align-items:center;gap:6px">' +
-            '<div style="width:6px;height:6px;border-radius:50%;background:'+dotColor+';flex-shrink:0"></div>' +
-            '<span style="font-family:var(--mono);font-size:8px;color:'+(ok?'var(--t1)':'var(--t3)')+'">'+names[id]+'</span>' +
-          '</div>' +
-          '<div style="display:flex;align-items:center;gap:6px">' +
-            '<span style="font-family:var(--mono);font-size:7px;color:var(--t2)">'+(CS[id]?CS[id].txt||'':'')+' </span>' +
-            '<span style="font-family:var(--dis);font-size:9px;font-weight:700;color:'+dotColor+'">'+(ok?(CS[id].dir==='B'?'+':'-')+w:'—')+'</span>' +
-          '</div>' +
+        if(!CS[id]) return;
+        var ok=CS[id].ok;
+        var w=weights[id]||5;
+        var isBull=CS[id].dir==='B';
+        var dotCol=ok?(isBull?'var(--green)':'var(--red)'):'rgba(255,255,255,.2)';
+        var bgCol=ok?(isBull?'rgba(0,230,118,.07)':'rgba(255,23,68,.07)'):'rgba(255,255,255,.02)';
+        var txt=CS[id].txt||'';
+        if(txt.length>28) txt=txt.slice(0,28)+'…';
+        html+='<div style="display:flex;align-items:center;justify-content:space-between;padding:4px 7px;border-radius:5px;background:'+bgCol+'">'+
+          '<div style="display:flex;align-items:center;gap:6px">'+
+            '<div style="width:7px;height:7px;border-radius:50%;background:'+dotCol+';flex-shrink:0"></div>'+
+            '<span style="font-family:var(--mono);font-size:8px;color:'+(ok?'var(--t1)':'rgba(255,255,255,.3)')+'">'+names[id]+'</span>'+
+          '</div>'+
+          '<div style="display:flex;align-items:center;gap:5px">'+
+            '<span style="font-family:var(--mono);font-size:6px;color:var(--t2)">'+txt+'</span>'+
+            '<span style="font-family:var(--dis);font-size:9px;font-weight:700;color:'+dotCol+'">'+(ok?(isBull?'+':'-')+w:'—')+'</span>'+
+          '</div>'+
         '</div>';
       });
       anaEl.innerHTML = html;
@@ -1208,8 +1521,7 @@ function buildSetup(){
     // Auto-fill checklist
     autoFillChecklist(sc);
 
-  } else if(sc >= 85 && isSideways) {
-    // SIDEWAYS block
+  } else if(sc >= 85 && isSideways){
     if(waiting) waiting.style.display = 'none';
     if(active) active.style.display = 'block';
     var g = function(id){return document.getElementById(id);};
@@ -1217,52 +1529,18 @@ function buildSetup(){
     if(hdr){hdr.style.background='rgba(255,171,0,.06)';hdr.style.borderColor='rgba(255,171,0,.3)';}
     if(g('seDirLabel')){g('seDirLabel').textContent='⚠️ SIDEWAYS';g('seDirLabel').style.color='var(--amber)';}
     if(g('seScoreBig')){g('seScoreBig').textContent=sc;g('seScoreBig').style.color='var(--amber)';}
-    if(g('sePairLabel')) g('sePairLabel').textContent = pair.replace('USDT','/USDT') + ' — kondisi sideways';
-    if(g('seEntry')) g('seEntry').textContent='—';
-    if(g('seSL')) g('seSL').textContent='—';
-    if(g('seTP1')) g('seTP1').textContent='—';
-    if(g('seTP2')) g('seTP2').textContent='—';
-    var warn = g('seWarn');
-    if(warn){warn.style.display='block';warn.textContent='Skor '+sc+'/100 namun pasar SIDEWAYS. Sinyal tidak cukup reliabel — tunggu breakout atau konfirmasi arah dulu.';}
+    if(g('sePairLabel')) g('sePairLabel').textContent=pair.replace('USDT','/USDT')+' — pasar sideways';
+    ['seEntry','seSL','seSLpct','seTP1','seTP1rr','seTP2','seTP2rr','seRR'].forEach(function(id){var e=g(id);if(e)e.textContent='—';});
+    var warn=g('seWarn');
+    if(warn){warn.style.display='block';warn.textContent='Skor '+sc+'/100 tapi pasar SIDEWAYS (ADX rendah). Tunggu breakout atau konfirmasi arah sebelum entry.';}
     if(g('seAnalyzers')) g('seAnalyzers').innerHTML='';
+    autoFillChecklist(sc);
   } else {
-    // Skor belum cukup
     if(waiting) waiting.style.display = 'block';
     if(active) active.style.display = 'none';
   }
 }
-function buildSetup(){
-  checkLev();
-  const sc=calcScore(),lk=document.getElementById('setupLock'),op=document.getElementById('setupOpen');
-  if(!lk||!op)return;
-  if(sc<70){lk.style.display='block';op.style.display='none';lk.innerHTML='<div style="font-size:28px;margin-bottom:7px">🔒</div><div style="font-family:var(--mono);font-size:10px;color:var(--t3);line-height:2">Setup terkunci<br><span style="color:var(--amber)">Butuh score ≥ 70/100</span><br>Sekarang: <b style="color:var(--cyan)">'+sc+'/100</b></div>';return;}
-  lk.style.display='none';op.style.display='block';
-  const isL=lastDir==='LONG',bd=document.getElementById('dirBadge');
-  if(bd){bd.innerHTML=(isL?'▲ AUTO LONG':'▼ AUTO SHORT')+' &nbsp;·&nbsp; Score: '+sc+'/100 &nbsp;·&nbsp; <span style="font-size:9px;opacity:.7">'+(isL?'BULL':'BEAR')+' '+(window._lastVote?(isL?window._lastVote.wb:window._lastVote.ws):0)+'pt</span>';bd.style.cssText='text-align:center;margin-bottom:9px;font-family:var(--dis);font-size:13px;letter-spacing:2px;padding:11px;border-radius:8px;border:2px solid '+(isL?'var(--green)':'var(--red)')+';background:'+(isL?'rgba(0,230,118,.09)':'rgba(255,23,68,.09)')+';color:'+(isL?'var(--green)':'var(--red)')+'';bd.style.display='block';}
-  const e=lastPrice||1,atrV=mATR(candles),{highs,lows}=mSwings(candles.slice(-60),4),tol2=e*0.005;
-  let sl=isL?e-atrV*1.5:e+atrV*1.5;
-  if(isL){const sup=lows.filter(l=>l.v<e-tol2).sort((a,b)=>b.v-a.v);if(sup.length)sl=sup[0].v*0.998;}
-  else{const res=highs.filter(h=>h.v>e+tol2).sort((a,b)=>a.v-b.v);if(res.length)sl=res[0].v*1.002;}
-  const slD=Math.abs(e-sl),slP=slD/e*100;
-  if(slP<0.5)sl=isL?e*0.992:e*1.008;if(slP>5)sl=isL?e-atrV*1.5:e+atrV*1.5;
-  const slD2=Math.abs(e-sl),tp1=isL?e+slD2*2:e-slD2*2,tp2=isL?e+slD2*3:e-slD2*3;
-  const modal=parseFloat(document.getElementById('inModal')?.value)||30,rp=parseFloat(document.getElementById('inRisk')?.value)||1,lev=parseFloat(document.getElementById('inLev')?.value)||3,ml=modal*rp/100;
-  const g=id=>document.getElementById(id);
-  g('sEntry')&&(g('sEntry').textContent='$'+fP(e));g('sSL')&&(g('sSL').textContent='$'+fP(sl));g('sTP1')&&(g('sTP1').textContent='$'+fP(tp1));g('sTP2')&&(g('sTP2').textContent='$'+fP(tp2));g('sLoss')&&(g('sLoss').textContent='-$'+ml.toFixed(3));g('sP1')&&(g('sP1').textContent='+$'+(ml*2).toFixed(3));g('sP2')&&(g('sP2').textContent='+$'+(ml*3).toFixed(3));g('sSLp')&&(g('sSLp').textContent=slP.toFixed(2)+'%');
-  lastSetup={entry:e,sl,tp1,tp2,dir:lastDir};
-  const NAMES={smc:'SMC',fib:'Fibonacci',ema:'EMA',mom:'Momentum',ob:'Order Book',ichi:'Ichimoku',div:'Divergence',sd:'S&D',vwap:'VWAP',sr:'S/R',mtf:'MTF'};
-  const rl=g('reasonList');if(rl)rl.innerHTML=CID.filter(id=>CS[id]?.ok).map(id=>'<div style="display:flex;gap:6px;margin-bottom:5px"><span style="color:var(--green);flex-shrink:0">✓</span><span style="font-size:9px;line-height:1.6"><b style="color:var(--t1)">'+NAMES[id]+':</b> <span style="color:var(--t2)">'+CS[id].txt+'</span></span></div>').join('');
-  const sc2=g('scoreLine');if(sc2)sc2.textContent='Skor: '+sc+'/100 | ATR: $'+fP(atrV)+' | SL: '+(slP<2.5?'S/R':'ATR×1.5')+' | Lev: '+lev+'x | RR: 1:2/1:3';
-  const sw2=g('setupWarn');if(sw2){let wt='⚙️ Risk '+rp+'% = -$'+ml.toFixed(3)+' dari $'+modal;if(mktCond==='SIDEWAYS')wt+='<br>⚠️ SIDEWAYS — konfirmasi manual dulu!';wt+='<br>⚡ Pasang SL SEBELUM entry!';sw2.innerHTML=wt;}
-  // Risk display update
-  const rdL=g('rdLoss'),rdP1=g('rdP1'),rdP2=g('rdP2');
-  if(rdL)rdL.textContent='-$'+ml.toFixed(3);
-  if(rdP1)rdP1.textContent='+$'+(ml*2).toFixed(3);
-  if(rdP2)rdP2.textContent='+$'+(ml*3).toFixed(3);
-  // Entry confirmation render
-  const ecWrap=g('entryConfirmWrap');
-  if(ecWrap)ecWrap.innerHTML=renderEntryConfirm();
-}
+
 function checkLev(){
   const lev=parseFloat(document.getElementById('inLev')?.value)||3,g=document.getElementById('levGuard');if(!g)return;
   const atrV=mATR(candles),p=lastPrice||1,vol=atrV/p*100,max=vol>5?2:vol>3?5:vol>2?10:20;
@@ -1382,7 +1660,7 @@ function showTab(id,btn){
   if(el) el.className='pane on';
   btn.className='tab on';
   // V6: init checklist setiap kali tab setup dibuka
-  if(id==='setup') setTimeout(initChecklist, 50);
+  if(id==='setup'){setTimeout(function(){initChecklist();buildSetup();},80);}
   // V6: load news saat tab news dibuka
   if(id==='news' && !newsLoaded) setTimeout(loadNews, 50);
 }
@@ -1508,57 +1786,52 @@ function renderEntryConfirm(){
 // FITUR 3: SESSION TIMER
 // ============================================================
 function updateSessions(){
-  const now=new Date();
-  const utcH=now.getUTCHours(),utcM=now.getUTCMinutes();
-  const utcMins=utcH*60+utcM;
-  const sessions=[
-    {id:'asia',name:'ASIA',start:0,end:9*60,color:'var(--cyan)'},
-    {id:'london',name:'LONDON',start:7*60,end:16*60,color:'var(--amber)'},
-    {id:'ny',name:'NEW YORK',start:12*60,end:21*60,color:'var(--green)'}
+  var now=new Date();
+  var utcH=now.getUTCHours(),utcM=now.getUTCMinutes();
+  var utcMins=utcH*60+utcM;
+  var sessions=[
+    {name:'ASIA',start:0,end:540,col:'var(--cyan)'},
+    {name:'LONDON',start:480,end:960,col:'#7cb9e8'},
+    {name:'NEW YORK',start:780,end:1320,col:'var(--amber)'},
+    {name:'PACIFIC',start:1320,end:1440,col:'var(--t2)'}
   ];
-  sessions.forEach(s=>{
-    const box=document.getElementById('sess-'+s.id);
-    const st=document.getElementById('st-'+s.id);
-    if(!box||!st)return;
-    const active=utcMins>=s.start&&utcMins<s.end;
-    const soon=!active&&utcMins>=s.start-60&&utcMins<s.start;
-    box.className='sess-box'+(active?' active':soon?' soon':'');
-    if(active){
-      const rem=s.end-utcMins;
-      const h=Math.floor(rem/60),m=rem%60;
-      st.textContent='🟢 BUKA '+h+'j'+m+'m lagi';
-      st.style.color=s.color;
-    } else if(soon){
-      const rem=s.start-utcMins;
-      st.textContent='🟡 '+rem+'m lagi';
-      st.style.color='var(--amber)';
+  var active=[];
+  for(var i=0;i<sessions.length;i++){
+    var s=sessions[i];
+    if(utcMins>=s.start&&utcMins<s.end) active.push(s);
+  }
+  var bar=document.getElementById('sessBar');
+  if(bar){
+    if(active.length===0){
+      bar.textContent='OFF-HOURS';
+      bar.style.color='var(--t3)';
     } else {
-      st.textContent='⚫ TUTUP';
-      st.style.color='var(--t3)';
+      bar.textContent=active.map(function(s){return s.name;}).join(' + ');
+      bar.style.color=active[0].col;
     }
-  });
+  }
 }
 // ============================================================
 // FITUR 4: CANDLE COUNTDOWN
 // ============================================================
 function updateCandleCountdown(){
-  const tfMins={'D':1440,'240':240,'60':60,'15':15};
-  const mins=tfMins[tf]||60;
-  const now=new Date();
-  const epoch=now.getTime();
-  const tfMs=mins*60*1000;
-  const rem=tfMs-(epoch%tfMs);
-  const remS=Math.floor(rem/1000);
-  const m=Math.floor(remS/60),s=remS%60;
-  const pct=((tfMs-rem)/tfMs*100);
-  const el=document.getElementById('cdTime');
-  const fill=document.getElementById('cdFill');
-  const tfEl=document.getElementById('cdTF');
-  if(el)el.textContent=(m>0?m+'m ':'')+s+'s';
-  if(fill)fill.style.width=pct+'%';
-  if(tfEl)tfEl.textContent=tf==='D'?'1D':tf==='240'?'4H':tf==='60'?'1H':'15M';
-  // Warning 30 detik sebelum close
-  if(remS<=30&&remS>28){showToast('⏰ Candle close dalam '+remS+'s!');}
+  var tfSec={'1':60,'3':180,'5':300,'15':900,'30':1800,'60':3600,'120':7200,'240':14400,'D':86400};
+  var dur=tfSec[tf]||3600;
+  var now=Math.floor(Date.now()/1000);
+  var rem=dur-(now%dur);
+  var pct=Math.round((dur-rem)/dur*100);
+  var mm=Math.floor(rem/60);
+  var ss=rem%60;
+  var el=document.getElementById('cdTimer');
+  var bar=document.getElementById('cdBarFill');
+  if(el){
+    el.textContent=(mm>0?(mm+'m '):'')+(ss<10?'0':'')+ss+'s';
+    el.style.color=rem<=60?'var(--red)':rem<=300?'var(--amber)':'var(--cyan)';
+  }
+  if(bar){
+    bar.style.width=pct+'%';
+    bar.style.background=rem<=60?'var(--red)':rem<=300?'var(--amber)':'var(--cyan)';
+  }
 }
 // ============================================================
 // FITUR 5: HISTORY SINYAL
@@ -1711,21 +1984,26 @@ function startAll(){
 // --- KILL ZONES ICT ---
 function updateKillZones(){
   var now=new Date();
-  var utcH=now.getUTCHours(), utcM=now.getUTCMinutes(), utcMin=utcH*60+utcM;
+  var utcH=now.getUTCHours(),utcM=now.getUTCMinutes(),utcMin=utcH*60+utcM;
   var zones=[
-    {id:'asian',s:0,e:240},{id:'london',s:420,e:540},
-    {id:'ny',s:780,e:900},{id:'nyc',s:1200,e:1320}
+    {id:'asian',s:0,e:240},
+    {id:'london',s:420,e:540},
+    {id:'ny',s:780,e:900},
+    {id:'nyc',s:1200,e:1320}
   ];
   for(var i=0;i<zones.length;i++){
     var z=zones[i];
-    var el=document.getElementById('kzs-'+z.id);
+    var active=(utcMin>=z.s&&utcMin<z.e);
     var box=document.getElementById('kz-'+z.id);
-    if(!el||!box) continue;
-    var active=utcMin>=z.s&&utcMin<z.e;
-    el.textContent=active?'🟢 AKTIF':'TUTUP';
-    el.style.color=active?'var(--green)':'var(--t3)';
-    box.style.borderColor=active?'rgba(0,200,83,.4)':'var(--b1)';
-    box.style.background=active?'rgba(0,200,83,.05)':'var(--card)';
+    var stat=document.getElementById('kz-'+z.id+'-s');
+    if(box){
+      box.style.background=active?'rgba(0,230,118,.1)':'rgba(0,0,0,.2)';
+      box.style.borderColor=active?'rgba(0,230,118,.3)':'var(--b1)';
+    }
+    if(stat){
+      stat.textContent=active?'● AKTIF':'○ OFF';
+      stat.style.color=active?'var(--green)':'var(--t3)';
+    }
   }
 }
 
@@ -1741,14 +2019,24 @@ function fetchBias(){
   var dtCol=dt==='BULLISH'?'var(--green)':'var(--red)';
   var bd=document.getElementById('bDaily');
   if(bd){bd.textContent=dt;bd.style.color=dtCol;}
+  var bdN=document.getElementById('biasD');
+  if(bdN){bdN.textContent=dt;bdN.style.color=dtCol;}
   var bw=document.getElementById('bWeekly');
   var bt=document.getElementById('bTrend');
   if(bw){bw.textContent=wt;bw.style.color=wt==='BULLISH'?'var(--green)':'var(--red)';}
+  var bwN=document.getElementById('biasW');
+  if(bwN){bwN.textContent=wt;bwN.style.color=wt==='BULLISH'?'var(--green)':'var(--red)';}
   var bm=document.getElementById('bMonthly');
   if(mtf&&mtf.d1&&mtf.d1.length>3){
     var d=mtf.d1, ml=d[d.length-1], mf=d[0];
     var mt2=ml.c>mf.c?'BULLISH':'BEARISH';
     if(bm){bm.textContent=mt2;bm.style.color=mt2==='BULLISH'?'var(--green)':'var(--red)';}
+  }
+  var bmN=document.getElementById('biasM');
+  if(bmN&&mtf&&mtf.d1&&mtf.d1.length>3){
+    var dm=mtf.d1,ml2=dm[dm.length-1],mf2=dm[0];
+    var mt3=ml2.c>mf2.c?'BULLISH':'BEARISH';
+    bmN.textContent=mt3;bmN.style.color=mt3==='BULLISH'?'var(--green)':'var(--red)';
   }
   if(bt){
     var tc=mktCond==='BULL'||mktCond==='UPTREND'?'var(--green)':mktCond==='BEAR'||mktCond==='DOWNTREND'?'var(--red)':'var(--amber)';
@@ -1767,7 +2055,14 @@ async function fetchOIFunding(){
       if(ov){var s=cur>1e9?(cur/1e9).toFixed(2)+'B':cur>1e6?(cur/1e6).toFixed(2)+'M':cur.toFixed(0);ov.textContent='$'+s;ov.style.color=chg>0?'var(--green)':'var(--red)';}
       if(oc){oc.textContent=(chg>0?'▲':chg<0?'▼':'—')+Math.abs(chg).toFixed(2)+'% 1H';oc.style.color=chg>0?'var(--green)':'var(--red)';}
     }
-  }catch(e){}
+    window._fundRate=fr||0;
+    var frEl=document.getElementById('fundRate');
+    if(frEl){
+      var frPct=(fr*100).toFixed(4)+'%';
+      frEl.textContent=frPct;
+      frEl.style.color=Math.abs(fr)>0.002?'var(--amber)':Math.abs(fr)>0.001?'var(--cyan)':'var(--t1)';
+    }
+}catch(e){}
   try{
     var d2=await tF('https://api.bybit.com/v5/market/funding/history?category=linear&symbol='+pair+'&limit=1');
     if(d2&&d2.result&&d2.result.list&&d2.result.list.length){
@@ -1945,122 +2240,81 @@ var chkState={};
 function initChecklist(){
   var el = document.getElementById('chkList');
   if(!el) return;
-  for(var k in chkState) chkState[k]=false;
-  var html='';
+  // Reset semua state
+  for(var k in chkState) chkState[k] = false;
+  var html = '';
   chkItems.forEach(function(it){
-    html += '<div style="display:flex;align-items:center;gap:8px;padding:6px 8px;background:rgba(0,0,0,.2);border-radius:5px;cursor:pointer" onclick="toggleChk(\''+it.id+'\')">' +
-      '<div id="cb-'+it.id+'" class="chk-cb" style="width:16px;height:16px;border-radius:4px;border:1px solid var(--b2);display:flex;align-items:center;justify-content:center;font-size:9px;flex-shrink:0;font-family:var(--mono)"></div>' +
-      '<span style="font-family:var(--mono);font-size:8px;color:var(--t2)">'+it.txt+'</span>' +
+    html += '<div onclick="toggleChk(\''+it.id+'\')" style="display:flex;align-items:center;gap:10px;padding:9px 10px;background:rgba(0,0,0,.2);border:1px solid var(--b1);border-radius:7px;cursor:pointer;transition:all .15s">' +
+      '<div id="cb-'+it.id+'" style="width:18px;height:18px;border-radius:5px;border:1.5px solid var(--b2);display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0;color:var(--green);transition:all .15s"></div>' +
+      '<span style="font-family:var(--mono);font-size:8px;color:var(--t2);line-height:1.4">'+it.txt+'</span>' +
     '</div>';
   });
   el.innerHTML = html;
-  var sc = document.getElementById('chkScore');
-  if(sc) sc.textContent = '0/'+chkItems.length;
+  updateChkScore();
 }
+
+function updateChkScore(){
+  var cnt = 0;
+  for(var k in chkState){ if(chkState[k]) cnt++; }
+  var el = document.getElementById('chkScore');
+  if(el){
+    el.textContent = cnt+'/'+chkItems.length;
+    el.style.color = cnt===chkItems.length ? 'var(--green)' : cnt>=3 ? 'var(--amber)' : 'var(--t2)';
+  }
+  var bar = document.getElementById('chkBar');
+  if(bar) bar.style.width = Math.round(cnt/chkItems.length*100)+'%';
+  // Update warna setiap row
+  chkItems.forEach(function(it){
+    var cb = document.getElementById('cb-'+it.id);
+    var row = cb ? cb.parentElement : null;
+    if(cb){
+      cb.textContent = chkState[it.id] ? '✓' : '';
+      cb.style.background = chkState[it.id] ? 'rgba(0,230,118,.2)' : 'transparent';
+      cb.style.borderColor = chkState[it.id] ? 'var(--green)' : 'var(--b2)';
+    }
+    if(row){
+      row.style.background = chkState[it.id] ? 'rgba(0,230,118,.06)' : 'rgba(0,0,0,.2)';
+      row.style.borderColor = chkState[it.id] ? 'rgba(0,230,118,.25)' : 'var(--b1)';
+    }
+  });
+}
+function resetChecklist(){
+  for(var k in chkState) chkState[k] = false;
+  updateChkScore();
+  showToast('Checklist di-reset');
+}
+
 function toggleChk(id){
-  chkState[id]=!chkState[id];
-  var cb=document.getElementById('cb-'+id);
-  if(cb){cb.textContent=chkState[id]?'✓':'';cb.className='chk-cb'+(chkState[id]?' on':'');}
-  var cnt=0;for(var k in chkState){if(chkState[k]) cnt++;}
-  var el=document.getElementById('chkScore');if(el) el.textContent=cnt+'/'+chkItems.length;
+  chkState[id] = !chkState[id];
+  updateChkScore();
 }
 
 // ============================================================
 // buildSetup — render setup entry di tab Setup saat score >= 85
 // + auto-fill checklist berdasarkan kondisi real
 // ============================================================
-function buildSetup(){
-  var sc=calcScore();
-  var box=document.getElementById('setupEntry');
-  if(!box) return;
 
-  // Tampilkan/sembunyikan setup entry
-  if(sc>=85 && lastSetup){
-    box.style.display='block';
-    var isL=lastDir==='LONG';
-    // Update elements
-    var seScore=document.getElementById('seScore');
-    var seEntry=document.getElementById('seEntry');
-    var seSL=document.getElementById('seSL');
-    var seTP1=document.getElementById('seTP1');
-    var seTP2=document.getElementById('seTP2');
-    var seDet=document.getElementById('seDetails');
-    if(seScore) seScore.textContent=(isL?'▲ LONG':'▼ SHORT')+' '+sc+'/100';
-    if(seScore) seScore.style.color=isL?'var(--green)':'var(--red)';
-    if(seEntry) seEntry.textContent='$'+fP(lastSetup.entry||lastPrice);
-    if(seSL) seSL.textContent='$'+fP(lastSetup.sl||0);
-    if(seTP1) seTP1.textContent='$'+fP(lastSetup.tp1||0);
-    if(seTP2) seTP2.textContent='$'+fP(lastSetup.tp2||0);
-    // Detail text
-    var rr=lastSetup.sl&&lastSetup.tp1?((Math.abs(lastSetup.tp1-lastSetup.entry)/Math.abs(lastSetup.entry-lastSetup.sl)).toFixed(1)):'?';
-    var slPct=lastSetup.sl&&lastSetup.entry?(Math.abs(lastSetup.entry-lastSetup.sl)/lastSetup.entry*100).toFixed(2):'?';
-    if(seDet) seDet.innerHTML=
-      '📊 Market: '+mktCond+
-      ' &nbsp;|&nbsp; ⚡ '+pair.replace('USDT','')+'/USDT Futures'+
-      '<br>📐 RR Ratio: 1:'+rr+
-      ' &nbsp;|&nbsp; 🛡️ SL: '+slPct+'% dari entry'+
-      '<br>📅 TF: '+(tf==='60'?'1H':tf==='240'?'4H':tf==='D'?'1D':'15M')+
-      ' &nbsp;|&nbsp; 🕐 '+new Date().toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'});
-    // Update border color
-    var inner=box.querySelector('div');
-    if(inner){
-      inner.style.background='rgba('+(isL?'0,230,118':'255,23,68')+',.06)';
-      inner.style.borderColor='rgba('+(isL?'0,230,118':'255,23,68')+',.25)';
-    }
-  } else {
-    box.style.display='none';
-  }
-
-  // AUTO-FILL CHECKLIST berdasarkan kondisi real
-  autoFillChecklist(sc);
-}
 
 function autoFillChecklist(sc){
-  // Tentukan kondisi untuk setiap checklist item
-  var killActive=false;
-  var now=new Date();
-  var utcH=now.getUTCHours(), utcM=now.getUTCMinutes();
-  var utcT=utcH*60+utcM;
-  // Kill zones: Asian 00-04, London 07-09, NY Open 13-15, NY Close 20-22
+  var killActive = false;
+  var now = new Date();
+  var utcT = now.getUTCHours()*60 + now.getUTCMinutes();
   if((utcT>=0&&utcT<240)||(utcT>=420&&utcT<540)||(utcT>=780&&utcT<900)||(utcT>=1200&&utcT<1320)) killActive=true;
-
-  // HTF aligned = MTF konfirmasi
-  var htfOk=CS&&CS.mtf&&CS.mtf.ok;
-  // Kill zone aktif
-  var kzOk=killActive;
-  // Score >= 85
-  var scoreOk=sc>=85;
-  // Candle konfirmasi = SMC atau momentum ok
-  var candleOk=CS&&((CS.smc&&CS.smc.ok)||(CS.mom&&CS.mom.ok));
-  // Volume = vwap atau ema ok sebagai proxy
-  var volOk=CS&&((CS.vwap&&CS.vwap.ok)||(CS.ema&&CS.ema.ok));
-
-  var conditions={c1:htfOk,c2:kzOk,c3:scoreOk,c4:candleOk,c5:volOk};
-  var anyFilled=false;
+  var conditions = {
+    c1: CS && CS.mtf && CS.mtf.ok,
+    c2: killActive,
+    c3: sc >= 85,
+    c4: CS && ((CS.smc && CS.smc.ok) || (CS.mom && CS.mom.ok)),
+    c5: CS && ((CS.vwap && CS.vwap.ok) || (CS.ema && CS.ema.ok))
+  };
   for(var k in conditions){
-    if(conditions[k]){
-      if(!chkState[k]){
-        chkState[k]=true;
-        anyFilled=true;
-      }
-    }
+    if(conditions[k]) chkState[k] = true;
   }
-  if(anyFilled) renderChecklist();
+  updateChkScore();
 }
 
 function renderChecklist(){
-  var cnt=0;
-  for(var k in chkState){if(chkState[k]) cnt++;}
-  for(var i=0;i<chkItems.length;i++){
-    var it=chkItems[i];
-    var cb=document.getElementById('cb-'+it.id);
-    if(cb){
-      cb.textContent=chkState[it.id]?'✓':'';
-      cb.className='chk-cb'+(chkState[it.id]?' on':'');
-    }
-  }
-  var el=document.getElementById('chkScore');
-  if(el) el.textContent=cnt+'/'+chkItems.length;
+  updateChkScore();
 }
 
 
