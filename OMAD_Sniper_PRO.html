@@ -1563,70 +1563,67 @@ function mATR(data, p) {
   return atr || 0.001;
 }
 
-// True ADX (Average Directional Index) — fixed: clamp 0–100, no overflow
+// ADX — Wilder's method yang benar
+// DI+/DI- dihitung dari smoothed AVERAGE (bukan sum mentah)
 function mADX(data, p) {
   p = p || 14;
-  if (!data || data.length < p * 2 + 1) return 20;
-  // Use last (p*3) candles max for efficiency
-  var s = data.slice(-Math.min(p * 3 + 1, data.length));
+  if (!data || data.length < p + 2) return 20;
+
+  var s = data.slice(-Math.min(p * 10, data.length)); // butuh banyak candle untuk ADX akurat
   var n = s.length;
-  var plusDMs = [], minusDMs = [], trs = [];
 
+  // Step 1: hitung raw TR, +DM, -DM per candle
+  var TR = [], pDM = [], mDM = [];
   for (var i = 1; i < n; i++) {
-    var upMove   = s[i].h - s[i-1].h;
-    var downMove = s[i-1].l - s[i].l;
-    // +DM: upward move bigger AND positive
-    plusDMs.push(upMove > downMove && upMove > 0 ? upMove : 0);
-    // -DM: downward move bigger AND positive
-    minusDMs.push(downMove > upMove && downMove > 0 ? downMove : 0);
-    // True Range
-    var hl  = s[i].h - s[i].l;
-    var hpc = Math.abs(s[i].h - s[i-1].c);
-    var lpc = Math.abs(s[i].l - s[i-1].c);
-    trs.push(Math.max(hl, hpc, lpc));
+    var hi = s[i].h, lo = s[i].l, pc = s[i-1].c;
+    TR.push(Math.max(hi - lo, Math.abs(hi - pc), Math.abs(lo - pc)));
+    var up   = s[i].h - s[i-1].h;
+    var down = s[i-1].l - s[i].l;
+    pDM.push(up > down && up > 0 ? up : 0);
+    mDM.push(down > up && down > 0 ? down : 0);
   }
 
-  // Wilder Smoothing — FIXED: use proper seed (sum first p values)
-  // then slide: new = prev - prev/p + next
-  function wilderSmooth(arr, per) {
-    if (arr.length < per) return [];
-    var seed = 0;
-    for (var k = 0; k < per; k++) seed += arr[k];
-    var res = [seed];
-    for (var j = per; j < arr.length; j++) {
-      seed = seed - seed / per + arr[j];
-      res.push(seed);
+  if (TR.length < p) return 20;
+
+  // Step 2: Wilder initial smoothing — seed = sum of first p values
+  var aTR = 0, apDM = 0, amDM = 0;
+  for (var k = 0; k < p; k++) {
+    aTR  += TR[k];
+    apDM += pDM[k];
+    amDM += mDM[k];
+  }
+
+  // Step 3: compute DX series using rolling Wilder smooth
+  var DXarr = [];
+  for (var j = p; j <= TR.length; j++) {
+    // ATR, +DM14, -DM14 as smoothed sums (Wilder style)
+    if (j > p) {
+      aTR  = aTR  - aTR/p  + TR[j-1];
+      apDM = apDM - apDM/p + pDM[j-1];
+      amDM = amDM - amDM/p + mDM[j-1];
     }
-    return res;
+    if (aTR === 0) continue;
+    // +DI14 and -DI14 — each is a percentage 0..100
+    var DIp = (apDM / aTR) * 100;
+    var DIm = (amDM / aTR) * 100;
+    var diSum = DIp + DIm;
+    // DX is always 0..100
+    DXarr.push(diSum > 0 ? Math.abs(DIp - DIm) / diSum * 100 : 0);
   }
 
-  var sATR    = wilderSmooth(trs,      p);
-  var sPlusDM = wilderSmooth(plusDMs,  p);
-  var sMinusDM= wilderSmooth(minusDMs, p);
+  if (DXarr.length < p) return 20;
 
-  var len = Math.min(sATR.length, sPlusDM.length, sMinusDM.length);
-  if (len === 0) return 20;
+  // Step 4: ADX = Wilder smooth of DX (14-period average)
+  var adx = 0;
+  for (var m = 0; m < p; m++) adx += DXarr[m];
+  adx /= p; // initial ADX = simple average of first p DX values
 
-  // DX values array
-  var DXs = [];
-  for (var d = 0; d < len; d++) {
-    var atr = sATR[d] || 0.0001;
-    // +DI and -DI are percentages (0–100 each)
-    var pDI = Math.min(100, (sPlusDM[d]  / atr) * 100);
-    var mDI = Math.min(100, (sMinusDM[d] / atr) * 100);
-    var diSum = pDI + mDI;
-    // DX = |DI+ - DI-| / (DI+ + DI-) * 100 → always 0–100
-    DXs.push(diSum > 0 ? Math.abs(pDI - mDI) / diSum * 100 : 0);
+  for (var q = p; q < DXarr.length; q++) {
+    adx = (adx * (p - 1) + DXarr[q]) / p; // Wilder EMA
   }
 
-  // ADX = Wilder smooth of DX
-  var adxArr = wilderSmooth(DXs, p);
-  if (!adxArr.length) return 20;
-
-  // Final ADX value — clamp strictly to 0–100
-  var raw = adxArr[adxArr.length - 1];
-  var result = Math.round(Math.min(100, Math.max(0, raw)));
-  return result || 20;
+  // ADX is mathematically guaranteed 0–100
+  return Math.round(Math.min(100, Math.max(0, adx))) || 20;
 }
 
 // Bollinger Band %B
