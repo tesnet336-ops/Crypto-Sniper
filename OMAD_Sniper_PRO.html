@@ -1908,12 +1908,15 @@ function A_Mom(data) {
   if (rsiOk) { pts++; details.push('RSI'+rsi+'✓'); }
   else details.push('RSI'+rsi+'✗');
 
-  // 2. MACD (proper calculation)
+  // 2. MACD (proper calculation) — harus jelas searah, bukan ambigu
   var macd = mMACD_Full(data);
   var macdPrev = mMACD_Full(data.slice(0, n-2));
   var histSlope = macd.hist - macdPrev.hist;
-  var macdOk = isL ? (macd.hist > 0 || (macd.hist > macdPrev.hist && histSlope > 0)) :
-                     (macd.hist < 0 || (macd.hist < macdPrev.hist && histSlope < 0));
+  // Bug fix: pakai AND bukan OR — histogram harus benar-benar searah
+  // Tidak cukup hanya "naik sedikit" — harus positif/negatif ATAU slope kuat
+  var macdOk = isL
+    ? (macd.hist > 0 && histSlope >= 0)   // histogram positif DAN naik/flat
+    : (macd.hist < 0 && histSlope <= 0);   // histogram negatif DAN turun/flat
   if (macdOk) { pts++; details.push('MACD✓'); }
   else details.push('MACD✗');
 
@@ -1972,10 +1975,10 @@ function A_Div(data) {
   if (isL && pr3 < pr1 && macd3.hist > macd1.hist) found.push('MACDDiv✓');
   if (!isL && pr3 > pr1 && macd3.hist < macd1.hist) found.push('MACDDiv✓');
 
-  // Additional: RSI momentum divergence (shorter lookback)
+  // Additional: RSI momentum divergence (shorter lookback) — perketat threshold
   var rsiMid = mRSI_Wilder(data.slice(0, p2+1), 14);
-  if (isL && pr3 < pr2 && rsi3 > rsiMid + 1) found.push('ShortDiv✓');
-  if (!isL && pr3 > pr2 && rsi3 < rsiMid - 1) found.push('ShortDiv✓');
+  if (isL && pr3 < pr2 && rsi3 > rsiMid + 3) found.push('ShortDiv✓');   // was +1, now +3
+  if (!isL && pr3 > pr2 && rsi3 < rsiMid - 3) found.push('ShortDiv✓');  // was -1, now -3
 
   var ok = found.length >= 1;
   result.ok = ok;
@@ -2023,12 +2026,12 @@ function A_Key(data) {
   if (Math.abs(price - vp.vah) <= radius) found.push('VAH✓');
   if (Math.abs(price - vp.val) <= radius) found.push('VAL✓');
 
-  // 4. Previous swing H/L (last 30 candles)
+  // 4. Previous swing H/L — perketat radius dari atr*2 → atr*1.2
   var lookback = Math.min(30, n);
   var swingHi = Math.max.apply(null, data.slice(-lookback).map(function(d) { return d.h; }));
   var swingLo = Math.min.apply(null, data.slice(-lookback).map(function(d) { return d.l; }));
-  if (isL && Math.abs(price - swingLo) <= radius * 2) found.push('SwingLo✓');
-  if (!isL && Math.abs(price - swingHi) <= radius * 2) found.push('SwingHi✓');
+  if (isL && Math.abs(price - swingLo) <= radius * 1.2) found.push('SwingLo✓');
+  if (!isL && Math.abs(price - swingHi) <= radius * 1.2) found.push('SwingHi✓');
 
   var ok = found.length >= 1;
   result.ok = ok;
@@ -2057,21 +2060,22 @@ function A_Ctx(data) {
     else details.push('Side✗');
   }
 
-  // 3. Wyckoff phase compatibility
+  // 3. Wyckoff phase compatibility — hapus fallback gratis
   var wycEl = document.getElementById('wycPhase');
   var wycPhase = wycEl ? wycEl.textContent : '';
-  if (!wycPhase || wycPhase === '—') { pts++; } // neutral if not loaded
-  else {
+  if (wycPhase && wycPhase !== '—') {
     var wycOk = isL ? (wycPhase.indexOf('MARKUP') !== -1 || wycPhase.indexOf('ACCUM') !== -1) :
                       (wycPhase.indexOf('MARKDOWN') !== -1 || wycPhase.indexOf('DIST') !== -1);
     if (wycOk) { pts++; details.push('Wyck✓'); }
     else details.push('Wyck✗');
   }
+  // Jika Wyckoff belum load = tidak dapat poin (sebelumnya dapat free poin = bug)
 
-  // 4. OI direction aligned
+  // 4. OI direction aligned — NEUTRAL tidak dapat free poin
   var oiDir = window._oiDir || 'NEUTRAL';
-  if (isL ? oiDir !== 'DOWN' : oiDir !== 'UP') { pts++; details.push('OI✓'); }
-  else details.push('OI✗');
+  if (isL && oiDir === 'UP') { pts++; details.push('OI✓'); }
+  else if (!isL && oiDir === 'DOWN') { pts++; details.push('OI✓'); }
+  else details.push('OI~'); // NEUTRAL = tidak dapat poin, tidak mengurangi
 
   var ok = pts >= 3;
   result.ok = ok;
@@ -2084,6 +2088,26 @@ function A_Ctx(data) {
 // SCORING ENGINE
 // ════════════════════════════════════════════════════════════════
 function calcScore() {
+  // ── PRE-CHECK: minimum requirements sebelum kalkulasi ─────────
+  // 1. Volume guard: pair dengan volume sangat rendah dapat penalti
+  var n = candles.length;
+  var volPenalty = 0;
+  if (n >= 5) {
+    var recentVols = candles.slice(-5).map(function(d) { return d.v || 0; });
+    var avgRecentVol = recentVols.reduce(function(a,b){return a+b;},0) / 5;
+    // Volume di bawah 500 (dalam unit kontrak) = pair sangat tidak liquid
+    if (avgRecentVol < 500) volPenalty = 20;
+    else if (avgRecentVol < 1000) volPenalty = 10;
+  }
+
+  // 2. Minimum momentum check: RSI tidak boleh flat (40-60 untuk arah kuat)
+  var rsiNow = mRSI_Wilder(candles, 14);
+  var isL = lastDir === 'LONG';
+  var rsiPenalty = 0;
+  // Jika RSI sangat berlawanan dengan arah (LONG tapi RSI<35, SHORT tapi RSI>65)
+  if (isL && rsiNow < 35) rsiPenalty = 10;
+  if (!isL && rsiNow > 65) rsiPenalty = 10;
+
   // Run all analyzers
   CS.smc = A_SMC(candles);
   CS.mtf = A_MTF();
@@ -2104,7 +2128,7 @@ function calcScore() {
     }
   });
 
-  // Conflict detection (disagreeing confirmed analyzers)
+  // Conflict detection
   var conflicts = 0;
   var conflictPairs = [['smc','div'],['smc','mtf'],['mom','div']];
   conflictPairs.forEach(function(p) {
@@ -2114,7 +2138,8 @@ function calcScore() {
   window._conflicts = conflicts;
 
   var rawScore = Math.min(100, wB + wS);
-  var score = Math.max(0, rawScore - conflicts * 5);
+  // Terapkan semua penalti
+  var score = Math.max(0, rawScore - conflicts * 5 - volPenalty - rsiPenalty);
 
   // Auto-determine direction
   if (autoScan) {
